@@ -1,0 +1,230 @@
+{
+  "nav": {
+    "home": "Home",
+    "menu": "Menu",
+    "about": "About Us",
+    "reservation": "Reservation",
+    "contact": "Contact",
+    "bookNow": "Book Now"
+  },
+  "hero": {
+    "title": "Taste of",
+    "subtitle": "Nusantara",
+    "description": "Experience authentic Indonesian flavors with a modern touch at Natarsal. Every dish is a work of art that tantalizes the palate.",
+    "reserve": "Reserve Now",
+    "viewMenu": "View Menu",
+    "signature": "Signature Dishes",
+    "experience": "Years of Experience",
+    "rating": "Customer Rating"
+  },
+  "about": {
+    "title": "About Us",
+    "heading": "Heritage of",
+    "subheading": "Nusantara",
+    "description": "Natarsal was born from a love for Indonesia's rich culinary heritage. We bring authentic flavors from Sabang to Merauke with an elegant modern touch.",
+    "features": [
+      "Using premium local fresh ingredients",
+      "Generational recipes with modern innovation",
+      "Unforgettable fine dining experience",
+      "Dedication to customer satisfaction"
+    ],
+    "learnMore": "Learn More",
+    "since": "since"
+  },
+  "menu": {
+    "title": "Our Menu",
+    "subtitle": "Richness of Nusantara Flavors",
+    "description": "Every dish is a culinary journey that takes you exploring authentic flavors from Sabang to Merauke.",
+    "categories": {
+      "all": "All",
+      "appetizer": "Appetizer",
+      "main": "Main Course",
+      "dessert": "Dessert",
+      "beverage": "Beverage"
+    },
+    "search": "Search menu...",
+    "noResults": "No menu found",
+    "recommended": "Recommended",
+    "spicy": "Spicy",
+    "vegetarian": "Vegetarian",
+    "viewAll": "View All Menu",
+    "price": "Price",
+    "items": {
+      "sateLilit": {
+        "name": "Sate Lilit",
+        "description": "Tuna fish satay with Balinese spices, served with sambal matah and fresh vegetables"
+      },
+      "rujak": {
+        "name": "Rujak",
+        "description": "Fresh fruit salad with traditional petis shrimp paste dressing"
+      },
+      "gorengan": {
+        "name": "Gorengan",
+        "description": "Assorted traditional fritters with peanut sauce"
+      },
+      "rendangSapi": {
+        "name": "Beef Rendang",
+        "description": "Premium beef slow-cooked in coconut milk and spices for hours until tender and flavorful"
+      },
+      "nasiGoreng": {
+        "name": "Nasi Goreng",
+        "description": "Premium fried rice with egg, shrimp, chicken, and fresh pineapple pickle"
+      },
+      "mieAceh": {
+        "name": "Mie Aceh",
+        "description": "Aceh-style noodles in rich spicy broth with beef and shrimp"
+      },
+      "ikanBakarJimbaran": {
+        "name": "Jimbaran Grilled Fish",
+        "description": "Fresh grilled fish with Jimbaran-style spices, served with sambal and vegetables"
+      },
+      "nasiPadang": {
+        "name": "Nasi Padang",
+        "description": "Padang-style rice with various Minangkabau side dishes"
+      },
+      "pecel": {
+        "name": "Pecel",
+        "description": "Blanched vegetables with savory peanut sauce and crispy crackers"
+      },
+      "rawon": {
+        "name": "Rawon",
+        "description": "Black beef soup with kluwek, bean sprouts, and traditional shrimp paste sambal"
+      },
+      "sotoMedan": {
+        "name": "Soto Medan",
+        "description": "Medan-style soto with rich coconut milk broth and beef"
+      },
+      "gadoGado": {
+        "name": "Gado Gado",
+        "description": "Fresh blanched vegetables with savory peanut sauce and crispy crackers"
+      },
+      "klepon": {
+        "name": "Klepon",
+        "description": "Glutinous rice balls filled with liquid palm sugar, coated with fresh grated coconut"
+      },
+      "esDoger": {
+        "name": "Es Doger",
+        "description": "Mixed ice with young coconut, fermented cassava, and sweet red syrup"
+      },
+      "dodol": {
+        "name": "Dodol",
+        "description": "Traditional dodol with sweet rich flavor and chewy texture"
+      },
+      "kopiGayo": {
+        "name": "Gayo Coffee",
+        "description": "Premium coffee from Gayo with a distinctive captivating aroma"
+      },
+      "esCendol": {
+        "name": "Es Cendol",
+        "description": "Refreshing drink with cendol, coconut milk, and sweet palm sugar"
+      },
+      "wedangJahe": {
+        "name": "Wedang Jahe",
+        "description": "Traditional drink with ginger, lemongrass, and spices to warm the body"
+      },
+      "bandrek": {
+        "name": "Bandrek",
+        "description": "Sundanese traditional drink with ginger, palm sugar, and spices"
+      },
+      "esTeler": {
+        "name": "Es Teler",
+        "description": "Mixed ice with avocado, young coconut, and refreshing red syrup"
+      },
+      "jamu": {
+        "name": "Jamu",
+        "description": "Traditional herbal drink with health benefits and unique flavor"
+      }
+    }
+  },
+  "testimonials": {
+    "title": "Testimonials",
+    "subtitle": "What They Say",
+    "description": "Opinions from customers and food lovers who have enjoyed our dishes.",
+    "items": [
+      {
+        "name": "Mark Wiens",
+        "role": "Food Blogger",
+        "content": "Natarsal delivers an extraordinary culinary experience! The beef rendang is the best I've ever tasted."
+      },
+      {
+        "name": "Gordon Ramsay",
+        "role": "Chef",
+        "content": "As a chef, I truly appreciate the quality of ingredients and cooking techniques used at Natarsal."
+      },
+      {
+        "name": "Anthony Bourdain",
+        "role": "Chef",
+        "content": "Elegant restaurant atmosphere with authentic Nusantara flavors. I will definitely come back!"
+      }
+    ]
+  },
+  "reservation": {
+    "title": "Reservation",
+    "subtitle": "Book a Table Now",
+    "description": "Enjoy an unforgettable culinary experience at Natarsal. Fill out the form below to book a table.",
+    "name": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "date": "Date",
+    "time": "Time",
+    "guests": "Number of Guests",
+    "occasion": "Occasion",
+    "occasionPlaceholder": "Select occasion (optional)",
+    "birthday": "Birthday",
+    "anniversary": "Anniversary",
+    "business": "Business Dinner",
+    "other": "Other",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes (special diet, special requests, etc.)",
+    "submit": "Book Now",
+    "processing": "Processing...",
+    "success": "Reservation Successful!",
+    "successMessage": "We will send confirmation to your email. Thank you for choosing Natarsal.",
+    "backHome": "Back to Home",
+    "comingSoon": "Reservation feature coming soon. Please contact us directly for booking.",
+    "whatsapp": "Contact via WhatsApp"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in Touch",
+    "description": "We are ready to serve you. Contact us through one of the methods below.",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "hours": "Opening Hours",
+    "addressDetail": "Denpasar, Bali",
+    "hoursDetail": {
+      "monThu": "Monday - Thursday: 11:00 - 22:00",
+      "friSat": "Friday - Saturday: 11:00 - 23:00",
+      "sun": "Sunday: 11:00 - 21:00"
+    }
+  },
+  "footer": {
+    "description": "Bringing authentic Nusantara flavors with a modern touch. Enjoy an unforgettable culinary experience at Natarsal.",
+    "quickLinks": "Quick Links",
+    "contactUs": "Contact Us",
+    "hours": "Opening Hours",
+    "kitchenClose": "*Kitchen closes 1 hour before closing time",
+    "rights": "All rights reserved.",
+    "days": {
+      "monThu": "Monday - Thursday",
+      "friSat": "Friday - Saturday",
+      "sun": "Sunday"
+    },
+    "hoursDetail": {
+      "monThu": "11:00 - 22:00",
+      "friSat": "11:00 - 23:00",
+      "sun": "11:00 - 21:00"
+    }
+  },
+  "reservationCta": {
+    "title": "Ready for an",
+    "subtitle": "Unforgettable Culinary Experience?",
+    "description": "Book a table now and enjoy authentic Nusantara flavors with a modern touch at Natarsal.",
+    "button": "Reserve Now"
+  },
+  "language": {
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  }
+}

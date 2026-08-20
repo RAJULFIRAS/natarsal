@@ -1,0 +1,66 @@
+{
+  "name": "natarsal-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Natarsal Restaurant Reservation System",
+  "main": "dist/app.js",
+  "scripts": {
+    "dev": "nodemon src/index.ts",
+    "build": "tsc && npx prisma generate",
+    "start": "node dist/index.js",
+    "vercel-build": "npx prisma generate && npm run build",
+    "lint": "eslint src/**/*.ts --max-warnings 0",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run tests/integration",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:migrate:dev": "npx prisma migrate dev",
+    "db:seed": "npx prisma db seed",
+    "db:studio": "npx prisma studio",
+    "docs:serve": "npx swagger-jsdoc -d src/config/swagger.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.8.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "exceljs": "^4.4.0",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.2.0",
+    "nodemailer": "^9.0.5",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^20.10.5",
+    "@types/nodemailer": "^8.0.1",
+    "@types/supertest": "^6.0.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "eslint": "^8.55.0",
+    "nodemon": "^3.0.2",
+    "prisma": "^5.8.0",
+    "supertest": "^6.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

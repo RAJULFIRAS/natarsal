@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body text-natarsal-black bg-natarsal-black antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display;
+  }
+
+  /* Scrollbar Custom */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-natarsal-cream rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-natarsal-gold rounded-full border-2 border-natarsal-cream;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-natarsal-gold-dark;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #825e2e #f5f0eb;
+  }
+}
+
+@layer components {
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  .btn-primary {
+    @apply bg-natarsal-gold text-white px-8 py-3 rounded-md font-medium 
+           transition-all duration-300 hover:bg-natarsal-black 
+           hover:shadow-xl transform hover:-translate-y-0.5 
+           focus:outline-none focus:ring-2 focus:ring-natarsal-gold focus:ring-offset-2;
+  }
+
+  .btn-outline {
+    @apply border-2 border-natarsal-gold text-natarsal-gold px-8 py-3 rounded-md font-medium 
+           transition-all duration-300 hover:bg-natarsal-gold hover:text-white 
+           hover:shadow-xl transform hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-natarsal-gold focus:ring-offset-2;
+  }
+
+  .btn-white-outline {
+    @apply border-2 border-white text-white px-8 py-3 rounded-md font-medium 
+           transition-all duration-300 hover:bg-white hover:text-natarsal-black 
+           hover:shadow-xl transform hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-display font-bold text-natarsal-black;
+  }
+
+  .section-subtitle {
+    @apply text-lg md:text-xl text-natarsal-black/70 max-w-2xl mx-auto;
+  }
+
+  .gold-line {
+    @apply w-16 h-0.5 bg-natarsal-gold mx-auto;
+  }
+}

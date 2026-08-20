@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String
+  name          String
+  role          Role           @default(USER)
+  reservations  Reservation[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  slug      String   @unique
+  menus     Menu[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Menu {
+  id            Int       @id @default(autoincrement())
+  name          String    @unique
+  description   String?
+  price         Float
+  categoryId    Int       @map("category_id")
+  category      Category  @relation(fields: [categoryId], references: [id])
+  isAvailable   Boolean   @default(true) @map("is_available")
+  image         String?
+  isRecommended Boolean   @default(false) @map("is_recommended")
+  isSpicy       Boolean   @default(false) @map("is_spicy")
+  isVegetarian  Boolean   @default(false) @map("is_vegetarian")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  @@map("menus")
+}
+
+model Reservation {
+  id                Int      @id @default(autoincrement())
+  reservationNumber String   @unique @map("reservation_number")
+  userId            Int?     @map("user_id")
+  user              User?    @relation(fields: [userId], references: [id])
+  customerName      String   @map("customer_name")
+  customerEmail     String   @map("customer_email")
+  customerPhone     String   @map("customer_phone")
+  date              DateTime
+  guests            Int
+  status            String   @default("PENDING")
+  notes             String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("reservations")
+}

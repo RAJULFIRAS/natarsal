@@ -1,0 +1,230 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "menu": "Menu",
+    "about": "Tentang Kami",
+    "reservation": "Reservasi",
+    "contact": "Kontak",
+    "bookNow": "Reservasi Sekarang"
+  },
+  "hero": {
+    "title": "Cita Rasa",
+    "subtitle": "Nusantara",
+    "description": "Rasakan kelezatan autentik Indonesia dengan sentuhan modern di Natarsal. Setiap hidangan adalah karya seni yang menggugah selera.",
+    "reserve": "Reservasi Sekarang",
+    "viewMenu": "Lihat Menu",
+    "signature": "Hidangan Signature",
+    "experience": "Tahun Pengalaman",
+    "rating": "Rating Pelanggan"
+  },
+  "about": {
+    "title": "Tentang Kami",
+    "heading": "Warisan Rasa",
+    "subheading": "Nusantara",
+    "description": "Natarsal lahir dari kecintaan terhadap kekayaan kuliner Indonesia. Kami menghadirkan cita rasa autentik dari Sabang sampai Merauke dengan sentuhan modern yang elegan.",
+    "features": [
+      "Menggunakan bahan-bahan segar lokal pilihan",
+      "Resep turun-temurun dengan inovasi modern",
+      "Pengalaman fine dining yang tak terlupakan",
+      "Dedikasi terhadap kepuasan pelanggan"
+    ],
+    "learnMore": "Selengkapnya",
+    "since": "sejak"
+  },
+  "menu": {
+    "title": "Menu Kami",
+    "subtitle": "Kekayaan Rasa Nusantara",
+    "description": "Setiap hidangan kami adalah perjalanan kuliner yang membawa Anda menjelajahi kelezatan autentik dari Sabang sampai Merauke.",
+    "categories": {
+      "all": "Semua",
+      "appetizer": "Pembuka",
+      "main": "Hidangan Utama",
+      "dessert": "Dessert",
+      "beverage": "Minuman"
+    },
+    "search": "Cari menu...",
+    "noResults": "Tidak ada menu yang ditemukan",
+    "recommended": "Rekomendasi",
+    "spicy": "Pedas",
+    "vegetarian": "Vegetarian",
+    "viewAll": "Lihat Semua Menu",
+    "price": "Harga",
+    "items": {
+      "sateLilit": {
+        "name": "Sate Lilit",
+        "description": "Sate daging ikan tuna dengan rempah khas Bali, disajikan dengan sambal matah dan lalapan segar"
+      },
+      "rujak": {
+        "name": "Rujak",
+        "description": "Rujak segar dengan buah-buahan dan bumbu petis yang khas"
+      },
+      "gorengan": {
+        "name": "Gorengan",
+        "description": "Aneka gorengan tradisional dengan sambal kacang"
+      },
+      "rendangSapi": {
+        "name": "Rendang Sapi",
+        "description": "Daging sapi pilihan dimasak dengan santan dan rempah-rempah selama berjam-jam hingga empuk dan meresap"
+      },
+      "nasiGoreng": {
+        "name": "Nasi Goreng",
+        "description": "Nasi goreng premium dengan telur, udang, ayam, dan acar nanas segar"
+      },
+      "mieAceh": {
+        "name": "Mie Aceh",
+        "description": "Mie Aceh dengan kuah kental rempah, daging sapi, dan udang"
+      },
+      "ikanBakarJimbaran": {
+        "name": "Ikan Bakar Jimbaran",
+        "description": "Ikan segar bakar dengan bumbu khas Jimbaran, disajikan dengan sambal dan lalapan"
+      },
+      "nasiPadang": {
+        "name": "Nasi Padang",
+        "description": "Nasi Padang dengan berbagai lauk pauk khas Minang"
+      },
+      "pecel": {
+        "name": "Pecel",
+        "description": "Sayuran rebus dengan bumbu kacang yang gurih dan kerupuk renyah"
+      },
+      "rawon": {
+        "name": "Rawon",
+        "description": "Sup daging sapi hitam dengan kluwek, tauge, dan sambal terasi yang khas"
+      },
+      "sotoMedan": {
+        "name": "Soto Medan",
+        "description": "Soto khas Medan dengan kuah santan gurih dan daging sapi"
+      },
+      "gadoGado": {
+        "name": "Gado Gado",
+        "description": "Sayuran rebus segar dengan bumbu kacang yang gurih dan kerupuk renyah"
+      },
+      "klepon": {
+        "name": "Klepon",
+        "description": "Bola ketan isi gula merah cair dengan taburan kelapa parut segar"
+      },
+      "esDoger": {
+        "name": "Es Doger",
+        "description": "Es campur dengan kelapa muda, tape singkong, dan siraman sirup merah yang manis"
+      },
+      "dodol": {
+        "name": "Dodol",
+        "description": "Dodol tradisional dengan rasa manis legit dan tekstur kenyal"
+      },
+      "kopiGayo": {
+        "name": "Kopi Gayo",
+        "description": "Kopi premium dari Gayo dengan aroma khas yang memikat"
+      },
+      "esCendol": {
+        "name": "Es Cendol",
+        "description": "Minuman segar dengan cendol, santan, dan gula merah yang manis legit"
+      },
+      "wedangJahe": {
+        "name": "Wedang Jahe",
+        "description": "Minuman tradisional dengan jahe, serai, dan rempah-rempah untuk menghangatkan tubuh"
+      },
+      "bandrek": {
+        "name": "Bandrek",
+        "description": "Minuman tradisional Sunda dengan jahe, gula aren, dan rempah"
+      },
+      "esTeler": {
+        "name": "Es Teler",
+        "description": "Es campur dengan alpukat, kelapa muda, dan sirup merah yang segar"
+      },
+      "jamu": {
+        "name": "Jamu",
+        "description": "Jamu tradisional dengan khasiat kesehatan dan rasa yang unik"
+      }
+    }
+  },
+  "testimonials": {
+    "title": "Testimoni",
+    "subtitle": "Apa Kata Mereka",
+    "description": "Pendapat dari para pelanggan dan pecinta kuliner yang telah menikmati hidangan kami.",
+    "items": [
+      {
+        "name": "Mark Wiens",
+        "role": "Food Blogger",
+        "content": "Natarsal menghadirkan pengalaman kuliner yang luar biasa! Rendang sapi-nya adalah yang terbaik yang pernah saya cicipi."
+      },
+      {
+        "name": "Gordon Ramsay",
+        "role": "Koki",
+        "content": "Sebagai seorang chef, saya sangat mengapresiasi kualitas bahan dan teknik memasak yang digunakan di Natarsal."
+      },
+      {
+        "name": "Anthony Bourdain",
+        "role": "Koki",
+        "content": "Suasana restoran yang elegan dengan cita rasa autentik Nusantara. Saya pasti akan kembali lagi!"
+      }
+    ]
+  },
+  "reservation": {
+    "title": "Reservasi",
+    "subtitle": "Pesan Meja Sekarang",
+    "description": "Nikmati pengalaman kuliner yang tak terlupakan di Natarsal. Isi form di bawah ini untuk memesan meja.",
+    "name": "Nama Lengkap",
+    "email": "Email",
+    "phone": "Nomor Telepon",
+    "date": "Tanggal",
+    "time": "Jam",
+    "guests": "Jumlah Tamu",
+    "occasion": "Acara",
+    "occasionPlaceholder": "Pilih acara (opsional)",
+    "birthday": "Ulang Tahun",
+    "anniversary": "Anniversary",
+    "business": "Business Dinner",
+    "other": "Lainnya",
+    "notes": "Catatan",
+    "notesPlaceholder": "Catatan tambahan (diet khusus, permintaan khusus, dll)",
+    "submit": "Pesan Sekarang",
+    "processing": "Memproses...",
+    "success": "Reservasi Berhasil!",
+    "successMessage": "Kami akan mengirimkan konfirmasi ke email Anda. Terima kasih telah memilih Natarsal.",
+    "backHome": "Kembali ke Beranda",
+    "comingSoon": "Fitur reservasi akan segera hadir. Silakan hubungi kami langsung untuk pemesanan.",
+    "whatsapp": "Hubungi via WhatsApp"
+  },
+  "contact": {
+    "title": "Kontak Kami",
+    "subtitle": "Hubungi Kami",
+    "description": "Kami siap melayani Anda. Hubungi kami melalui salah satu cara di bawah ini.",
+    "address": "Alamat",
+    "phone": "Telepon",
+    "email": "Email",
+    "hours": "Jam Operasional",
+    "addressDetail": "Denpasar, Bali",
+    "hoursDetail": {
+      "monThu": "Senin - Kamis: 11:00 - 22:00",
+      "friSat": "Jumat - Sabtu: 11:00 - 23:00",
+      "sun": "Minggu: 11:00 - 21:00"
+    }
+  },
+  "footer": {
+    "description": "Menghadirkan kelezatan autentik Nusantara dengan sentuhan modern. Nikmati pengalaman kuliner yang tak terlupakan di Natarsal.",
+    "quickLinks": "Tautan Cepat",
+    "contactUs": "Hubungi Kami",
+    "hours": "Jam Operasional",
+    "kitchenClose": "*Kitchen tutup 1 jam sebelum jam tutup",
+    "rights": "All rights reserved.",
+    "days": {
+      "monThu": "Senin - Kamis",
+      "friSat": "Jumat - Sabtu",
+      "sun": "Minggu"
+    },
+    "hoursDetail": {
+      "monThu": "11:00 - 22:00",
+      "friSat": "11:00 - 23:00",
+      "sun": "11:00 - 21:00"
+    }
+  },
+  "reservationCta": {
+    "title": "Siap untuk Pengalaman",
+    "subtitle": "Kuliner yang Tak Terlupakan?",
+    "description": "Pesan meja sekarang dan nikmati kelezatan autentik Nusantara dengan sentuhan modern di Natarsal.",
+    "button": "Reservasi Sekarang"
+  },
+  "language": {
+    "id": "Bahasa Indonesia",
+    "en": "English"
+  }
+}
