@@ -56,23 +56,24 @@ const AdminLogin: React.FC = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-bold text-natarsal-black">
-            NATARSAL
-          </h1>
-          <p className="text-natarsal-black/60 text-sm mt-1">Admin Dashboard</p>
+          <div className="w-8 h-8">
+            <img
+              src="public/images/logo.png"
+              alt="Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
         </div>
 
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="font-display text-2xl font-bold text-natarsal-black mb-2">
-            Admin Login
+            WELCOME BACK
           </h2>
-          <p className="text-natarsal-black/60 text-sm mb-6">
-            Masuk untuk mengelola reservasi restoran
-          </p>
+          <br></br>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+            <div className="bg-white border border-red-500 rounded-lg p-4 mb-6 flex items-start gap-3">
               <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
               <p className="text-red-600 text-sm">{error}</p>
             </div>
@@ -141,12 +142,6 @@ const AdminLogin: React.FC = () => {
               )}
             </button>
           </form>
-
-          <div className="mt-4 text-center">
-            <p className="text-xs text-natarsal-black/40">
-              Gunakan akun admin yang telah disediakan
-            </p>
-          </div>
         </div>
       </div>
     </div>

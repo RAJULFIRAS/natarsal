@@ -1,9 +1,7 @@
-// D:/natarsal/natarsal-backend/src/middleware/upload.middleware.ts
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Pastikan folder uploads ada
 const uploadDir = path.join(__dirname, "../../uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });

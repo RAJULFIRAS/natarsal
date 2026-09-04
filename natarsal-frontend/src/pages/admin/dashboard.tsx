@@ -1,6 +1,7 @@
 // D:/natarsal/natarsal-frontend/src/pages/admin/dashboard.tsx
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { FiMessageSquare } from "react-icons/fi";
 import {
   FiLayout,
   FiCalendar,
@@ -35,6 +36,11 @@ const AdminLayout: React.FC = () => {
     { path: "/admin/dashboard", icon: FiLayout, label: "Dashboard" },
     { path: "/admin/reservations", icon: FiCalendar, label: "Reservasi" },
     { path: "/admin/menu", icon: FiMenu, label: "Menu" },
+    {
+      path: "/admin/testimonials",
+      icon: FiMessageSquare,
+      label: "Testimonial",
+    },
   ];
 
   return (
@@ -49,8 +55,12 @@ const AdminLayout: React.FC = () => {
           {/* Logo */}
           <div className="flex items-center justify-between p-4 border-b border-natarsal-black/5">
             <Link to="/admin/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-natarsal-gold rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                N
+              <div className="w-8 h-8">
+                <img
+                  src="public/images/logo.png"
+                  alt="Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span
                 className={`font-display font-bold text-natarsal-black ${!isSidebarOpen && "hidden"}`}

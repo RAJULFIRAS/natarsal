@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/App.tsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store";
@@ -14,7 +13,8 @@ import ContactPage from "./pages/contactpage";
 
 // Admin Pages
 import AdminLogin from "./pages/admin/login";
-import CheckStatus from "./pages/admin/check-status";
+import CheckStatus from "./pages/check-status";
+import AdminTestimonials from "./pages/admin/testimonials";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./pages/admin/dashboard";
 import AdminOverview from "./pages/admin/overview";
@@ -40,6 +40,7 @@ function App() {
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route element={<ProtectedRoute requireAdmin={true} />}>
               <Route path="/admin" element={<AdminLayout />}>
+                <Route path="testimonials" element={<AdminTestimonials />} />
                 <Route path="dashboard" element={<AdminOverview />} />
                 <Route path="reservations" element={<AdminReservations />} />
                 <Route path="menu" element={<AdminMenu />} />

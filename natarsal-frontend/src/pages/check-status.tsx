@@ -1,5 +1,7 @@
 // D:/natarsal/natarsal-frontend/src/pages/check-status.tsx
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import {
   FiSearch,
   FiLoader,
@@ -7,21 +9,33 @@ import {
   FiCheckCircle,
   FiClock,
   FiXCircle,
+  FiArrowLeft,
 } from "react-icons/fi";
-import Layout from "../../components/layout/layout";
-import apiClient from "../../config/api";
+import Layout from "../components/layout/layout";
+import apiClient from "../config/api";
+
+interface ReservationResult {
+  reservationNumber: string;
+  customerName: string;
+  date: string;
+  guests: number;
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  notes: string | null;
+}
 
 const CheckStatus: React.FC = () => {
+  const { t } = useTranslation();
   const [reservationNumber, setReservationNumber] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ReservationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!reservationNumber || !email) {
-      setError("Nomor reservasi dan email wajib diisi");
+      setError(t("reservation.checkStatus.required"));
       return;
     }
 
@@ -35,13 +49,15 @@ const CheckStatus: React.FC = () => {
         email,
       );
 
-      if (response.success) {
-        setResult(response.data);
+      if (response.success && response.data) {
+        setResult(response.data as ReservationResult);
       } else {
-        setError(response.error?.message || "Reservasi tidak ditemukan");
+        setError(
+          response.error?.message || t("reservation.checkStatus.notFound"),
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Terjadi kesalahan");
+      setError(err.message || t("reservation.checkStatus.error"));
     } finally {
       setLoading(false);
     }
@@ -53,27 +69,27 @@ const CheckStatus: React.FC = () => {
       { label: string; icon: JSX.Element; className: string }
     > = {
       PENDING: {
-        label: "Menunggu Konfirmasi",
+        label: t("reservation.checkStatus.status.pending"),
         icon: <FiClock className="text-yellow-500" />,
-        className: "bg-yellow-50 text-yellow-700 border-yellow-200",
+        className: "bg-white text-yellow-700 border-yellow-500",
       },
       CONFIRMED: {
-        label: "Terkonfirmasi",
+        label: t("reservation.checkStatus.status.confirmed"),
         icon: <FiCheckCircle className="text-green-500" />,
-        className: "bg-green-50 text-green-700 border-green-200",
+        className: "bg-white text-green-700 border-green-500",
       },
       COMPLETED: {
-        label: "Selesai",
+        label: t("reservation.checkStatus.status.completed"),
         icon: <FiCheckCircle className="text-blue-500" />,
-        className: "bg-blue-50 text-blue-700 border-blue-200",
+        className: "bg-white text-blue-700 border-blue-500",
       },
       CANCELLED: {
-        label: "Dibatalkan",
+        label: t("reservation.checkStatus.status.cancelled"),
         icon: <FiXCircle className="text-red-500" />,
-        className: "bg-red-50 text-red-700 border-red-200",
+        className: "bg-white text-red-700 border-red-500",
       },
     };
-    // ✅ FIX: Gunakan bracket notation
+
     const config = configs[status] || configs["PENDING"];
     return (
       <div
@@ -89,13 +105,21 @@ const CheckStatus: React.FC = () => {
     <Layout>
       <section className="section-padding bg-natarsal-cream/20 min-h-[80vh]">
         <div className="container-custom max-w-2xl">
+          {/* Back Button */}
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-natarsal-white/60 hover:text-natarsal-white transition-colors mb-6"
+          >
+            <FiArrowLeft size={18} />
+            <span className="text-sm">Kembali</span>
+          </Link>
+
           <div className="text-center mb-8">
-            <h1 className="font-display text-3xl font-bold text-natarsal-black mb-2">
-              Cek Status Reservasi
+            <h1 className="font-display text-3xl font-bold text-natarsal-white mb-2">
+              {t("reservation.checkStatus.title")}
             </h1>
-            <p className="text-natarsal-black/60">
-              Masukkan nomor reservasi dan email Anda untuk melihat status
-              reservasi
+            <p className="text-natarsal-white/60">
+              {t("reservation.checkStatus.description")}
             </p>
           </div>
 
@@ -103,7 +127,7 @@ const CheckStatus: React.FC = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
-                  Nomor Reservasi *
+                  {t("reservation.checkStatus.reservationNumber")} *
                 </label>
                 <input
                   type="text"
@@ -111,7 +135,9 @@ const CheckStatus: React.FC = () => {
                   onChange={(e) =>
                     setReservationNumber(e.target.value.toUpperCase())
                   }
-                  placeholder="Contoh: RSV-1234567890-ABC12"
+                  placeholder={t(
+                    "reservation.checkStatus.reservationNumberPlaceholder",
+                  )}
                   className="w-full px-4 py-3 rounded-lg border border-natarsal-black/10 focus:border-natarsal-gold focus:ring-2 focus:ring-natarsal-gold/20 outline-none transition-all font-mono"
                   required
                 />
@@ -119,13 +145,13 @@ const CheckStatus: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
-                  Email *
+                  {t("reservation.checkStatus.email")} *
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
+                  placeholder={t("reservation.checkStatus.emailPlaceholder")}
                   className="w-full px-4 py-3 rounded-lg border border-natarsal-black/10 focus:border-natarsal-gold focus:ring-2 focus:ring-natarsal-gold/20 outline-none transition-all"
                   required
                 />
@@ -139,19 +165,19 @@ const CheckStatus: React.FC = () => {
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <FiLoader className="animate-spin" />
-                    Mengecek...
+                    {t("reservation.checkStatus.submitting")}
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
                     <FiSearch />
-                    Cek Status
+                    {t("reservation.checkStatus.submit")}
                   </span>
                 )}
               </button>
             </form>
 
             {error && (
-              <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+              <div className="mt-4 bg-white border border-red-500 rounded-lg p-4 flex items-start gap-3">
                 <FiAlertCircle className="text-red-500 mt-0.5 flex-shrink-0" />
                 <p className="text-red-600 text-sm">{error}</p>
               </div>
@@ -162,63 +188,89 @@ const CheckStatus: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-sm text-natarsal-black/60">
-                      Nomor Reservasi
+                      {t("reservation.checkStatus.fields.reservationNumber")}
                     </p>
                     <p className="font-mono font-bold text-natarsal-black">
                       {result.reservationNumber}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-natarsal-black/60">Status</p>
+                    <p className="text-sm text-natarsal-black/60">
+                      {t("reservation.checkStatus.fields.status")}
+                    </p>
                     {getStatusBadge(result.status)}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-natarsal-black/10">
                   <div>
-                    <p className="text-sm text-natarsal-black/60">Nama</p>
+                    <p className="text-sm text-natarsal-black/60">
+                      {t("reservation.checkStatus.fields.name")}
+                    </p>
                     <p className="font-medium text-natarsal-black">
                       {result.customerName}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-natarsal-black/60">
-                      Jumlah Tamu
+                      {t("reservation.checkStatus.fields.guests")}
                     </p>
                     <p className="font-medium text-natarsal-black">
-                      {result.guests} orang
+                      {result.guests} {result.guests > 1 ? "orang" : "orang"}
                     </p>
                   </div>
                   <div className="col-span-2">
                     <p className="text-sm text-natarsal-black/60">
-                      Tanggal & Waktu
+                      {t("reservation.checkStatus.fields.dateTime")}
                     </p>
                     <p className="font-medium text-natarsal-black">
-                      {new Date(result.date).toLocaleString("id-ID", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {new Date(result.date).toLocaleString(
+                        localStorage.getItem("i18nextLng") === "en"
+                          ? "en-US"
+                          : "id-ID",
+                        {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        },
+                      )}
                     </p>
                   </div>
                   {result.notes && (
                     <div className="col-span-2">
-                      <p className="text-sm text-natarsal-black/60">Catatan</p>
+                      <p className="text-sm text-natarsal-black/60">
+                        {t("reservation.checkStatus.fields.notes")}
+                      </p>
                       <p className="text-natarsal-black/80">{result.notes}</p>
                     </div>
                   )}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-natarsal-black/10">
+                  <p className="text-xs text-natarsal-black/40">
+                    {t("reservation.checkStatus.saveNumber")}
+                  </p>
                 </div>
               </div>
             )}
           </div>
 
-          <p className="text-center text-xs text-natarsal-black/40 mt-4">
-            * Jika Anda lupa nomor reservasi, silakan cek email konfirmasi yang
-            dikirimkan
+          <p className="text-center text-xs text-natarsal-white/40 mt-4">
+            {t("reservation.checkStatus.hint")}
           </p>
+
+          <div className="text-center mt-6">
+            <Link
+              to="/reservation"
+              className="inline-flex items-center gap-2 text-natarsal-gold hover:text-natarsal-white transition-colors text-sm"
+            >
+              <FiArrowLeft size={16} />
+              {t("reservation.backHome")}
+            </Link>
+          </div>
         </div>
       </section>
     </Layout>

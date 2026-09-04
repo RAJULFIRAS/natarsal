@@ -189,7 +189,7 @@ const AdminMenu: React.FC = () => {
       }
 
       // ✅ Debug: Log form data
-      console.log("📝 Submitting menu:");
+      console.log("Submitting menu:");
       for (const [key, value] of formDataToSend.entries()) {
         console.log(
           `  ${key}:`,
@@ -275,12 +275,9 @@ const AdminMenu: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-2xl font-bold text-natarsal-black">
-            Manajemen Menu
-          </h1>
-          <p className="text-natarsal-black/60 text-sm">
+          <h1 className="font-display text-2xl font-bold text-white/70">
             Kelola daftar menu restoran
-          </p>
+          </h1>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -292,7 +289,7 @@ const AdminMenu: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-600">
+        <div className="bg-white border border-red-500 rounded-lg p-4 mb-6 text-red-600">
           {error}
           <button
             onClick={() => setError(null)}
@@ -366,22 +363,22 @@ const AdminMenu: React.FC = () => {
                 <div className="absolute top-2 right-2 flex gap-1">
                   {menu.isRecommended && (
                     <span className="bg-natarsal-gold text-white text-xs px-2 py-0.5 rounded">
-                      ⭐
+                      Recommendation
                     </span>
                   )}
                   {menu.isSpicy && (
                     <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">
-                      🌶️
+                      spicy
                     </span>
                   )}
                   {menu.isVegetarian && (
                     <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded">
-                      🌿
+                      Vegetarian
                     </span>
                   )}
                   {!menu.isAvailable && (
                     <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">
-                      Tidak Tersedia
+                      not available
                     </span>
                   )}
                 </div>
@@ -413,7 +410,7 @@ const AdminMenu: React.FC = () => {
                   </button>
                   <button
                     onClick={() => handleDelete(menu.id, menu.name)}
-                    className="px-3 py-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors text-sm"
+                    className="px-3 py-1.5 bg-white text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors text-sm"
                   >
                     <FiTrash2 size={14} />
                   </button>
@@ -562,7 +559,7 @@ const AdminMenu: React.FC = () => {
                     }
                     className="w-4 h-4 text-natarsal-gold focus:ring-natarsal-gold"
                   />
-                  Tersedia
+                  available
                 </label>
                 <label className="flex items-center gap-2 text-sm text-natarsal-black/70">
                   <input
@@ -576,7 +573,7 @@ const AdminMenu: React.FC = () => {
                     }
                     className="w-4 h-4 text-natarsal-gold focus:ring-natarsal-gold"
                   />
-                  Rekomendasi ⭐
+                  Recommendation
                 </label>
                 <label className="flex items-center gap-2 text-sm text-natarsal-black/70">
                   <input
@@ -587,7 +584,7 @@ const AdminMenu: React.FC = () => {
                     }
                     className="w-4 h-4 text-natarsal-gold focus:ring-natarsal-gold"
                   />
-                  Pedas 🌶️
+                  spicy
                 </label>
                 <label className="flex items-center gap-2 text-sm text-natarsal-black/70">
                   <input
@@ -601,7 +598,7 @@ const AdminMenu: React.FC = () => {
                     }
                     className="w-4 h-4 text-natarsal-gold focus:ring-natarsal-gold"
                   />
-                  Vegetarian 🌿
+                  Vegetarian
                 </label>
               </div>
 
@@ -614,7 +611,7 @@ const AdminMenu: React.FC = () => {
                 {formLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <FiLoader className="animate-spin" />
-                    Menyimpan...
+                    Saving...
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">

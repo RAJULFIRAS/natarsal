@@ -153,19 +153,19 @@ const AdminReservations: React.FC = () => {
     const configs: Record<string, { label: string; className: string }> = {
       PENDING: {
         label: "Menunggu",
-        className: "bg-yellow-100 text-yellow-800",
+        className: "bg-yellow-800 text-white",
       },
       CONFIRMED: {
         label: "Terkonfirmasi",
-        className: "bg-green-100 text-green-800",
+        className: "bg-green-800 text-white",
       },
       COMPLETED: {
         label: "Selesai",
-        className: "bg-blue-100 text-blue-800",
+        className: "bg-blue-800 text-white",
       },
       CANCELLED: {
         label: "Dibatalkan",
-        className: "bg-red-100 text-red-800",
+        className: "bg-red-800 text-white",
       },
     };
     const config = configs[status] || configs["PENDING"];
@@ -210,10 +210,7 @@ const AdminReservations: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-2xl font-bold text-natarsal-black">
-            Reservasi
-          </h1>
-          <p className="text-natarsal-black/60 text-sm">
+          <p className="font-display text-2xl font-bold text-natarsal-white/70 text-center">
             Total {total} reservasi
           </p>
         </div>
@@ -266,7 +263,7 @@ const AdminReservations: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 text-red-600">
+        <div className="bg-white border border-red-600 rounded-lg p-4 mb-6 text-red-600">
           {error}
           <button
             onClick={() => setError(null)}
@@ -356,7 +353,7 @@ const AdminReservations: React.FC = () => {
                                 handleStatusChange(reservation.id, "CONFIRMED")
                               }
                               disabled={actionLoading === reservation.id}
-                              className="p-1.5 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
+                              className="p-1.5 bg-white text-green-600 rounded-lg hover:bg-green-500 transition-colors disabled:opacity-50"
                               title="Konfirmasi"
                             >
                               <FiCheckCircle size={18} />
@@ -364,7 +361,7 @@ const AdminReservations: React.FC = () => {
                             <button
                               onClick={() => handleCancel(reservation.id)}
                               disabled={actionLoading === reservation.id}
-                              className="p-1.5 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors disabled:opacity-50"
+                              className="p-1.5 bg-white text-red-600 rounded-lg hover:bg-red-500 transition-colors disabled:opacity-50"
                               title="Batalkan"
                             >
                               <FiXCircle size={18} />
@@ -377,7 +374,7 @@ const AdminReservations: React.FC = () => {
                               handleStatusChange(reservation.id, "COMPLETED")
                             }
                             disabled={actionLoading === reservation.id}
-                            className="p-1.5 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50"
+                            className="p-1.5 bg-white text-blue-600 rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50"
                             title="Tandai Selesai"
                           >
                             <FiCheckCircle size={18} />

@@ -10,7 +10,6 @@ import {
   FiPhone,
   FiMail,
 } from "react-icons/fi";
-import { Link } from "react-router-dom";
 
 const Footer: React.FC = () => {
   const { t } = useTranslation();
@@ -135,15 +134,6 @@ const Footer: React.FC = () => {
             />
           </div>
         </div>
-
-        <li>
-          <Link
-            to="/check-status"
-            className="text-white/60 hover:text-natarsal-gold transition-colors"
-          >
-            Cek Status Reservasi
-          </Link>
-        </li>
 
         <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-white/40">
           <p>

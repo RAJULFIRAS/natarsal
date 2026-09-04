@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { FiLoader } from "react-icons/fi";
+import { FiLoader, FiSearch } from "react-icons/fi";
 import Layout from "../components/layout/layout";
 import apiClient from "../config/api";
 
@@ -91,7 +91,6 @@ const ReservationPage: React.FC = () => {
 
           {success ? (
             <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md text-center">
-              <div className="text-6xl mb-4">✅</div>
               <h2 className="font-display text-2xl font-bold text-natarsal-black mb-2">
                 {t("reservation.success")}
               </h2>
@@ -128,7 +127,7 @@ const ReservationPage: React.FC = () => {
               className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md"
             >
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg mb-6">
+                <div className="bg-red-50 border border-white text-red-600 p-4 rounded-lg mb-6">
                   {error}
                 </div>
               )}
@@ -274,9 +273,15 @@ const ReservationPage: React.FC = () => {
                 )}
               </button>
 
-              <p className="text-xs text-natarsal-black/40 mt-4 text-center">
-                * Required fields
-              </p>
+              <div className="mt-4 text-center">
+                <Link
+                  to="/check-status"
+                  className="inline-flex items-center gap-2 text-natarsal-gold hover:text-natarsal-black transition-colors text-sm font-medium"
+                >
+                  <FiSearch size={16} />
+                  {t("reservationCta.check.reservation")}
+                </Link>
+              </div>
             </form>
           )}
         </div>

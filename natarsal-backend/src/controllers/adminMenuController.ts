@@ -29,11 +29,10 @@ export const createMenu = async (
 
     const file = (req as any).file;
 
-    // ✅ DEBUG: Log untuk cek data masuk
     console.log("📝 Create Menu - Body:", req.body);
     console.log("📝 Create Menu - File:", file?.filename || "No file");
 
-    // ✅ Validasi - Cek satu per satu
+    // ✅ Validasi
     if (!name || typeof name !== "string" || !name.trim()) {
       console.log("❌ Name is missing or invalid:", name);
       res.status(400).json({
@@ -49,7 +48,7 @@ export const createMenu = async (
     }
 
     if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
-      console.log("❌ Price is missing or invalid:", price);
+      console.log("Price is missing or invalid:", price);
       res.status(400).json({
         success: false,
         error: {
@@ -63,7 +62,7 @@ export const createMenu = async (
     }
 
     if (!categoryId || isNaN(parseInt(categoryId))) {
-      console.log("❌ CategoryId is missing or invalid:", categoryId);
+      console.log("CategoryId is missing or invalid:", categoryId);
       res.status(400).json({
         success: false,
         error: {
@@ -82,7 +81,7 @@ export const createMenu = async (
     });
 
     if (!category) {
-      console.log("❌ Category not found:", categoryId);
+      console.log("Category not found:", categoryId);
       res.status(404).json({
         success: false,
         error: {
@@ -103,7 +102,7 @@ export const createMenu = async (
     });
 
     if (existing) {
-      console.log("❌ Duplicate menu:", name);
+      console.log("Duplicate menu:", name);
       res.status(409).json({
         success: false,
         error: {
@@ -133,14 +132,14 @@ export const createMenu = async (
       },
     });
 
-    console.log("✅ Menu created:", menu.name);
+    console.log("Menu created:", menu.name);
     res.status(201).json({
       success: true,
       data: menu,
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error("❌ Create menu error:", error);
+    console.error("Create menu error:", error);
     res.status(500).json({
       success: false,
       error: {
@@ -173,8 +172,8 @@ export const updateMenu = async (
     } = req.body;
     const file = (req as any).file;
 
-    console.log("📝 Update Menu - ID:", id);
-    console.log("📝 Update Menu - Body:", req.body);
+    console.log("Update Menu - ID:", id);
+    console.log("Update Menu - Body:", req.body);
 
     if (isNaN(id)) {
       res.status(400).json({
@@ -262,14 +261,14 @@ export const updateMenu = async (
       },
     });
 
-    console.log("✅ Menu updated:", menu.name);
+    console.log("Menu updated:", menu.name);
     res.json({
       success: true,
       data: menu,
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error("❌ Update menu error:", error);
+    console.error("Update menu error:", error);
     res.status(500).json({
       success: false,
       error: {
@@ -337,7 +336,7 @@ export const deleteMenu = async (
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error("❌ Delete menu error:", error);
+    console.error("Delete menu error:", error);
     res.status(500).json({
       success: false,
       error: {

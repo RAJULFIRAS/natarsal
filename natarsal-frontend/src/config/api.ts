@@ -107,7 +107,27 @@ class ApiClient {
     options: RequestInit = {},
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    return fetchWithTimeout<T>(url, options);
+
+    // ✅ Jika body adalah FormData, jangan set Content-Type
+    const isFormData = options.body instanceof FormData;
+    const headers: HeadersInit = {
+      ...((options.headers as Record<string, string>) || {}),
+    };
+
+    // ✅ Hanya set Content-Type jika bukan FormData
+    if (!isFormData && !headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    // ✅ Jika body adalah FormData, hapus Content-Type biar browser set sendiri
+    if (isFormData) {
+      delete headers["Content-Type"];
+    }
+
+    return fetchWithTimeout<T>(url, {
+      ...options,
+      headers,
+    });
   }
 
   async health(): Promise<
@@ -330,6 +350,62 @@ class ApiClient {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+    });
+  }
+
+  // ============================================================
+  // TESTIMONIALS - ✅ TAMBAHKAN INI
+  // ============================================================
+
+  async getTestimonials(): Promise<ApiResponse<any[]>> {
+    return this.request("/testimonials");
+  }
+
+  async createTestimonial(
+    token: string,
+    data: {
+      name: string;
+      role: string;
+      content: string;
+      image?: string;
+      rating?: number;
+      order?: number;
+    },
+  ): Promise<ApiResponse<any>> {
+    return this.request("/admin/testimonials", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTestimonial(
+    token: string,
+    id: number,
+    data: Partial<{
+      name: string;
+      role: string;
+      content: string;
+      image: string;
+      rating: number;
+      order: number;
+      isActive: boolean;
+    }>,
+  ): Promise<ApiResponse<any>> {
+    return this.request(`/admin/testimonials/${id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTestimonial(
+    token: string,
+    id: number,
+  ): Promise<ApiResponse<any>> {
+    return this.request(`/admin/testimonials/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
   }
 }

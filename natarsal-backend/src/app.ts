@@ -10,6 +10,7 @@ import menuRoutes from "./routes/menuRoutes";
 import path from "path";
 import exportRoutes from "./routes/exportRoutes";
 import publicRoutes from "./routes/publicRoutes";
+import testimonialRoutes from "./routes/testimonialRoutes";
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use(
 app.use("/api/menu", express.json({ limit: "10mb" }), menuRoutes);
 app.use("/api/export", express.json({ limit: "10mb" }), exportRoutes);
 app.use("/api/public", express.json({ limit: "10mb" }), publicRoutes);
+app.use("/api/testimonials", testimonialRoutes);
 
 // ✅ Route UPLOAD - TIDAK PAKAI JSON PARSER (multer handle sendiri)
 app.use("/api/admin", adminMenuRoutes);

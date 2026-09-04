@@ -75,48 +75,48 @@ const AdminOverview: React.FC = () => {
       value: stats.total,
       icon: FiCalendar,
       color: "bg-blue-500",
-      bg: "bg-blue-50",
-      text: "text-blue-600",
+      bg: "bg-blue-500",
+      text: "text-white",
     },
     {
       title: "Menunggu Konfirmasi",
       value: stats.pending,
       icon: FiClock,
       color: "bg-yellow-500",
-      bg: "bg-yellow-50",
-      text: "text-yellow-600",
+      bg: "bg-yellow-500",
+      text: "text-white",
     },
     {
       title: "Terkonfirmasi",
       value: stats.confirmed,
       icon: FiCheckCircle,
       color: "bg-green-500",
-      bg: "bg-green-50",
-      text: "text-green-600",
+      bg: "bg-green-500",
+      text: "text-white",
     },
     {
       title: "Selesai",
       value: stats.completed,
       icon: FiCheckCircle,
-      color: "bg-emerald-500",
-      bg: "bg-emerald-50",
-      text: "text-emerald-600",
+      color: "bg-black",
+      bg: "bg-black",
+      text: "text-white",
     },
     {
       title: "Dibatalkan",
       value: stats.cancelled,
       icon: FiXCircle,
       color: "bg-red-500",
-      bg: "bg-red-50",
-      text: "text-red-600",
+      bg: "bg-red-500",
+      text: "text-white",
     },
     {
       title: "Hari Ini",
       value: stats.today,
       icon: FiCalendar,
       color: "bg-purple-500",
-      bg: "bg-purple-50",
-      text: "text-purple-600",
+      bg: "bg-purple-500",
+      text: "text-white",
     },
   ];
 
@@ -141,12 +141,9 @@ const AdminOverview: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-2xl font-bold text-natarsal-black">
-            Dashboard
-          </h1>
-          <p className="text-natarsal-black/60 text-sm">
+          <h1 className="font-display text-2xl font-bold text-white/70">
             Ringkasan reservasi restoran
-          </p>
+          </h1>
         </div>
         <Link
           to="/admin/reservations"
