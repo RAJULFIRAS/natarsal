@@ -44,9 +44,6 @@ const AdminTestimonials: React.FC = () => {
   const fetchTestimonials = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
       const response = await apiClient.getTestimonials();
       if (response.success && response.data) {
         setTestimonials(response.data);
@@ -88,14 +85,20 @@ const AdminTestimonials: React.FC = () => {
     setEditing(null);
   };
 
+  // ✅ FIX: Tambahkan async dan ambil token di dalam function
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormLoading(true);
     setError(null);
 
     try {
+      // ✅ Ambil token dari localStorage di dalam function
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
+      if (!token) {
+        setError("Not authenticated");
+        setFormLoading(false);
+        return;
+      }
 
       let response;
       if (editing) {
@@ -126,7 +129,10 @@ const AdminTestimonials: React.FC = () => {
 
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
+      if (!token) {
+        setError("Not authenticated");
+        return;
+      }
 
       const response = await apiClient.deleteTestimonial(token, id);
       if (response.success) {
@@ -142,7 +148,10 @@ const AdminTestimonials: React.FC = () => {
   const toggleActive = async (id: number, currentStatus: boolean) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
+      if (!token) {
+        setError("Not authenticated");
+        return;
+      }
 
       await apiClient.updateTestimonial(token, id, {
         isActive: !currentStatus,
@@ -169,6 +178,9 @@ const AdminTestimonials: React.FC = () => {
           <h1 className="font-display text-2xl font-bold text-natarsal-white/70">
             Kelola testimonial yang tampil
           </h1>
+          <p className="text-sm text-white/40 mt-1">
+            Total {testimonials.length} testimonial
+          </p>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -180,10 +192,10 @@ const AdminTestimonials: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-white border border-red-600 rounded-lg p-4 mb-6 text-red-600">
-          {error}
-          <button onClick={() => setError(null)} className="ml-2">
-            <FiX className="inline" />
+        <div className="bg-white border border-red-600 rounded-lg p-4 mb-6 text-red-600 flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className="hover:text-red-800">
+            <FiX size={18} />
           </button>
         </div>
       )}
@@ -270,13 +282,13 @@ const AdminTestimonials: React.FC = () => {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleOpenModal(t)}
-                          className="p-1.5 bg-natarsal-cream text-natarsal-black rounded-lg hover:bg-natarsal-gold hover:text-white transition-colors"
+                          className="p-1.5 bg-natarsal-gold text-natarsal-white rounded-lg hover:bg-natarsal-black hover:text-white transition-colors"
                         >
                           <FiEdit2 size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(t.id, t.name)}
-                          className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                          className="p-1.5 bg-white text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
                         >
                           <FiTrash2 size={16} />
                         </button>
@@ -362,7 +374,7 @@ const AdminTestimonials: React.FC = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, image: e.target.value })
                   }
-                  placeholder="https://example.com/photo.jpg"
+                  placeholder="https://example.com/photo.png"
                   className="w-full px-4 py-2 rounded-lg border border-natarsal-black/10 focus:border-natarsal-gold focus:ring-2 focus:ring-natarsal-gold/20 outline-none transition-all"
                 />
               </div>

@@ -8,6 +8,7 @@ import authRoutes from "./routes/authRoutes";
 import reservationRoutes from "./routes/reservationRoutes";
 import menuRoutes from "./routes/menuRoutes";
 import path from "path";
+import fs from "fs";
 import exportRoutes from "./routes/exportRoutes";
 import publicRoutes from "./routes/publicRoutes";
 import testimonialRoutes from "./routes/testimonialRoutes";
@@ -18,13 +19,51 @@ const app = express();
 app.use(securityConfig.securityHeaders);
 app.use(securityConfig.helmet);
 app.use(securityConfig.cors);
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-// ✅ JSON parser - HANYA untuk route yang butuh JSON
-// Jangan pasang global JSON parser!
-// app.use(express.json()); // ❌ HAPUS INI
+// ✅ SERVE UPLOADS
+const uploadsPath = path.join(__dirname, "../uploads");
 
-// ✅ URL encoded parser untuk form data biasa
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+}
+
+console.log(`📁 Serving uploads from: ${uploadsPath}`);
+
+// ✅ SERVE STATIC FILES DENGAN CORS HEADER
+app.use(
+  "/uploads",
+  (_req, res, next) => {
+    // Tambahkan CORS header untuk gambar
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(uploadsPath, {
+    maxAge: "7d",
+    setHeaders: (res, _filePath) => {
+      res.setHeader("Cache-Control", "public, max-age=604800");
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  }),
+);
+
+// ✅ DEBUG ROUTE
+app.get("/debug/uploads", (_req, res) => {
+  try {
+    const files = fs.readdirSync(uploadsPath);
+    res.json({
+      uploadsPath,
+      files,
+      count: files.length,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ JSON parser
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // ✅ Rate limiting
@@ -46,7 +85,7 @@ app.get("/ping", (_req, res) => {
   res.send("pong");
 });
 
-// ✅ API Routes - JSON parser PER ROUTE
+// ✅ API Routes
 app.use("/api/auth", express.json({ limit: "10mb" }), authRoutes);
 app.use(
   "/api/reservations",
@@ -56,13 +95,13 @@ app.use(
 app.use("/api/menu", express.json({ limit: "10mb" }), menuRoutes);
 app.use("/api/export", express.json({ limit: "10mb" }), exportRoutes);
 app.use("/api/public", express.json({ limit: "10mb" }), publicRoutes);
-app.use("/api/testimonials", testimonialRoutes);
+app.use(
+  "/api/testimonials",
+  express.json({ limit: "10mb" }),
+  testimonialRoutes,
+);
 
-// ✅ Route UPLOAD - TIDAK PAKAI JSON PARSER (multer handle sendiri)
 app.use("/api/admin", adminMenuRoutes);
-
-// Serve uploads
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // 404 handler
 app.use((req, res) => {
@@ -76,7 +115,6 @@ app.use((req, res) => {
   });
 });
 
-// Global error handler
 app.use(errorHandler);
 
 export default app;

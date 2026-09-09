@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { FiStar } from "react-icons/fi";
 import apiClient from "../../config/api";
+import { getImageUrl } from "../../config/api";
 
 interface Testimonial {
   id: number;
@@ -14,6 +15,52 @@ interface Testimonial {
   order: number;
 }
 
+// ✅ Component Avatar dengan fallback
+const TestimonialAvatar: React.FC<{ image?: string; name: string }> = ({
+  image,
+  name,
+}) => {
+  const [error, setError] = useState(false);
+  const [src, setSrc] = useState("");
+
+  useEffect(() => {
+    if (image) {
+      const url = getImageUrl(image);
+      console.log(`🖼️ Testimonial avatar URL:`, url);
+      setSrc(url);
+      setError(false);
+    } else {
+      setSrc("");
+      setError(true);
+    }
+  }, [image]);
+
+  const handleError = () => {
+    console.log(`❌ Avatar failed to load for: ${name}`);
+    setError(true);
+    setSrc("");
+  };
+
+  // ✅ Jika error atau tidak ada gambar, tampilkan inisial
+  if (error || !src) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-natarsal-gold text-white font-bold text-base">
+        {name.charAt(0).toUpperCase()}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      className="w-full h-full object-cover"
+      loading="lazy"
+      onError={handleError}
+    />
+  );
+};
+
 const Testimonials: React.FC = () => {
   const { t } = useTranslation();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -24,91 +71,7 @@ const Testimonials: React.FC = () => {
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
 
-  // ✅ FIX 1: Ganti NodeJS.Timeout dengan number
   const autoPlayRef = useRef<number | null>(null);
-
-  // Default testimonials (fallback) - 8 items
-  const defaultTestimonials: Testimonial[] = [
-    {
-      id: 1,
-      name: "Mark Wiens",
-      role: "Food Blogger",
-      content:
-        "Natarsal delivers an extraordinary culinary experience! The beef rendang is the best I've ever tasted.",
-      image: "/images/Mark Wiens.png",
-      rating: 5,
-      order: 0,
-    },
-    {
-      id: 2,
-      name: "Gordon Ramsay",
-      role: "Chef",
-      content:
-        "As a chef, I truly appreciate the quality of ingredients and cooking techniques used at Natarsal.",
-      image: "/images/Gordon Ramsay.png",
-      rating: 5,
-      order: 1,
-    },
-    {
-      id: 3,
-      name: "Anthony Bourdain",
-      role: "Chef",
-      content:
-        "Elegant restaurant atmosphere with authentic Nusantara flavors. I will definitely come back!",
-      image: "/images/Anthony Bourdain.png",
-      rating: 5,
-      order: 2,
-    },
-    {
-      id: 4,
-      name: "Barack Obama",
-      role: "American President",
-      content:
-        "The best fine dining experience in Bali! The ambiance is perfect for special occasions.",
-      image: "/images/barack obama.png",
-      rating: 5,
-      order: 3,
-    },
-    {
-      id: 5,
-      name: "Alain Ducasse",
-      role: "Restaurant Owner",
-      content:
-        "As a fellow restaurateur, I'm impressed by the quality and consistency of Natarsal's dishes.",
-      image: "/images/alain ducasse.png",
-      rating: 5,
-      order: 4,
-    },
-    {
-      id: 6,
-      name: "Diana",
-      role: "Princess of Wales",
-      content:
-        "A hidden gem in Denpasar! The fusion of traditional and modern cuisine is brilliant.",
-      image: "/images/diana.png",
-      rating: 5,
-      order: 5,
-    },
-    {
-      id: 7,
-      name: "Michael Jackson",
-      role: "Musician",
-      content:
-        "Natarsal successfully elevates Indonesian cuisine to fine dining level. A must-visit!",
-      image: "/images/michael jackson.png",
-      rating: 5,
-      order: 6,
-    },
-    {
-      id: 8,
-      name: "Cristiano Ronaldo",
-      role: "Footballer",
-      content: "Natarsal is a culinary masterpiece! Highly recommended!",
-      image: "/images/cristiano ronaldo.png",
-      rating: 5,
-      order: 7,
-    },
-  ];
 
   useEffect(() => {
     fetchTestimonials();
@@ -116,24 +79,38 @@ const Testimonials: React.FC = () => {
 
   const fetchTestimonials = async () => {
     try {
+      setLoading(true);
       const response = await apiClient.getTestimonials();
+
+      console.log("📥 Testimonials response:", response);
+
       if (response.success && response.data && response.data.length > 0) {
-        setTestimonials(response.data);
+        const mappedData: Testimonial[] = response.data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          role: item.role,
+          content: item.content,
+          image: item.image || undefined,
+          rating: item.rating || 5,
+          order: item.order || 0,
+        }));
+
+        console.log("✅ Testimonials loaded:", mappedData.length);
+        mappedData.forEach((t) => {
+          console.log(`📸 Testimonial ${t.id} - ${t.name}:`, t.image);
+        });
+
+        setTestimonials(mappedData);
       } else {
-        setTestimonials(defaultTestimonials);
+        console.log("ℹ️ No testimonials found");
+        setTestimonials([]);
       }
     } catch (error) {
-      console.error("Failed to fetch testimonials:", error);
-      setTestimonials(defaultTestimonials);
+      console.error("❌ Failed to fetch testimonials:", error);
+      setTestimonials([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  const getImageUrl = (image?: string) => {
-    if (!image) return "/images/placeholder.jpg";
-    if (image.startsWith("http")) return image;
-    return image;
   };
 
   const shiftNext = () => {
@@ -152,23 +129,19 @@ const Testimonials: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 500);
   };
 
-  // Auto-slide setiap 1 detik
+  // Auto-slide setiap 5 detik
   useEffect(() => {
     if (testimonials.length === 0 || isDragging) return;
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    // ✅ FIX 1: Gunakan window.setInterval (return number)
     autoPlayRef.current = window.setInterval(() => {
       shiftNext();
-    }, 1000);
+    }, 5000);
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
   }, [testimonials.length, currentIndex, isDragging]);
 
-  // ============================================================
-  // DRAG / SWIPE HANDLERS
-  // ============================================================
-
+  // Drag handlers
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
@@ -200,12 +173,10 @@ const Testimonials: React.FC = () => {
     setCurrentX(0);
   };
 
-  // ============================================================
-  // 3D CAROUSEL
-  // ============================================================
-
+  // 3D Carousel
   const getVisibleIndices = () => {
     const total = testimonials.length;
+    if (total === 0) return [];
     const indices: number[] = [];
     for (let diff = -3; diff <= 3; diff++) {
       let index = (currentIndex + diff + total) % total;
@@ -223,12 +194,10 @@ const Testimonials: React.FC = () => {
         transform: "translateX(999px) scale(0)",
         opacity: 0,
         zIndex: 0,
-        // ✅ FIX 2: Gunakan as const untuk pointerEvents
         pointerEvents: "none" as const,
         transition: isDragging
           ? "none"
           : "all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        // ✅ FIX 2: Gunakan as const untuk transformStyle
         transformStyle: "preserve-3d" as const,
       };
     }
@@ -255,14 +224,12 @@ const Testimonials: React.FC = () => {
       `,
       opacity: opacity,
       zIndex: zIndex,
-      // ✅ FIX 2: Gunakan as const untuk pointerEvents
-      pointerEvents: (diff === 0 ? "auto" : "none") as const,
+      pointerEvents: diff === 0 ? "auto" : "none",
       transition: isDragging
         ? "none"
         : "all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
       cursor: isDragging ? "grabbing" : "grab",
       willChange: "transform, opacity",
-      // ✅ FIX 2: Gunakan as const untuk transformStyle
       transformStyle: "preserve-3d" as const,
     };
   };
@@ -350,33 +317,10 @@ const Testimonials: React.FC = () => {
                   {/* Author */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-natarsal-cream flex-shrink-0 border-2 border-natarsal-gold/20">
-                      {testimonial.image ? (
-                        <img
-                          src={getImageUrl(testimonial.image)}
-                          alt={testimonial.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                          onError={(e) => {
-                            const img = e.target as HTMLImageElement;
-                            img.style.display = "none";
-                            const parent = img.parentElement;
-                            if (parent) {
-                              parent.style.display = "flex";
-                              parent.style.alignItems = "center";
-                              parent.style.justifyContent = "center";
-                              parent.style.backgroundColor = "#825E2E";
-                              parent.style.color = "white";
-                              parent.style.fontWeight = "bold";
-                              parent.style.fontSize = "1rem";
-                              parent.textContent = testimonial.name.charAt(0);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-natarsal-gold text-white font-bold text-base">
-                          {testimonial.name.charAt(0)}
-                        </div>
-                      )}
+                      <TestimonialAvatar
+                        image={testimonial.image}
+                        name={testimonial.name}
+                      />
                     </div>
                     <div>
                       <h4 className="font-display font-semibold text-natarsal-black text-sm">
@@ -392,7 +336,7 @@ const Testimonials: React.FC = () => {
             })}
           </div>
 
-          {/* Indikator Geser (Hint) */}
+          {/* Indicator */}
           <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 text-natarsal-black/20 text-xs flex items-center gap-2">
             <span className="flex items-center gap-1">
               <span className="w-4 h-0.5 bg-natarsal-black/20 rounded-full"></span>
@@ -401,7 +345,7 @@ const Testimonials: React.FC = () => {
           </div>
         </div>
 
-        {/* Counter / Indicator */}
+        {/* Counter */}
         <div className="text-center mt-4">
           <span className="text-xs text-natarsal-black/40">
             {currentIndex + 1} / {testimonials.length}

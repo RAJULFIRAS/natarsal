@@ -4,18 +4,21 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import { securityHeaders } from "../middleware/security-headers.middleware";
 
-// ✅ TAMBAHKAN localhost:1000 ke CORS origin
+// ✅ CORS dengan konfigurasi lengkap
 const corsOptions = {
   origin: [
     "http://localhost:3000",
     "http://localhost:5173",
-    "http://localhost:1000", // ✅ TAMBAHKAN INI!
+    "http://localhost:1000",
     "http://127.0.0.1:1000",
     "http://127.0.0.1:5173",
+    "https://natarsal.vercel.app",
+    "https://natarsal-backend.vercel.app",
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+  exposedHeaders: ["Content-Type", "Authorization"],
   maxAge: 86400,
 };
 

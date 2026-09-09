@@ -16,30 +16,41 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // ✅ Refresh token function
+  // ✅ Refresh token function dengan error handling lebih baik
   const refreshAccessToken = async (): Promise<boolean> => {
     const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) return false;
+    if (!refreshToken) {
+      console.log("No refresh token found");
+      return false;
+    }
 
     try {
+      console.log("🔄 Attempting to refresh token...");
       const response = await apiClient.refreshToken(refreshToken);
-      if (response.success && response.data) {
+
+      if (response.success && response.data?.token) {
         localStorage.setItem("token", response.data.token);
+        console.log("✅ Token refreshed successfully");
         return true;
       }
+
+      console.log("❌ Refresh token failed:", response.error?.message);
       return false;
     } catch (error) {
-      console.error("Refresh token failed:", error);
+      console.error("❌ Refresh token error:", error);
       return false;
     }
   };
 
   useEffect(() => {
     const verifyAuth = async () => {
+      setIsLoading(true);
+
       try {
         let token = localStorage.getItem("token");
 
         if (!token) {
+          console.log("No token found, redirecting to login");
           setIsAuthenticated(false);
           setIsLoading(false);
           return;
@@ -56,21 +67,34 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           if (refreshed) {
             const newToken = localStorage.getItem("token")!;
             response = await apiClient.getMe(newToken);
+            console.log("✅ Auth verified after refresh");
+          } else {
+            console.log("❌ Refresh failed, redirecting to login");
+            // Clear invalid tokens
+            localStorage.removeItem("token");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("user");
+            setIsAuthenticated(false);
+            setIsLoading(false);
+            return;
           }
         }
 
         if (response.success && response.data) {
           setIsAuthenticated(true);
           setIsAdmin(response.data.role === "ADMIN");
+          // Update user data in localStorage
+          localStorage.setItem("user", JSON.stringify(response.data));
         } else {
           // Token invalid
+          console.log("❌ Auth verification failed:", response.error?.message);
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
           setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error("Auth verification failed:", error);
+        console.error("❌ Auth verification error:", error);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -78,7 +102,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     };
 
     verifyAuth();
-  }, [location]);
+
+    // ✅ Auto-refresh token setiap 10 menit (jika user aktif)
+    const refreshInterval = setInterval(
+      () => {
+        if (isAuthenticated) {
+          refreshAccessToken();
+        }
+      },
+      10 * 60 * 1000,
+    ); // 10 menit
+
+    return () => clearInterval(refreshInterval);
+  }, [location, isAuthenticated]);
 
   if (isLoading) {
     return (

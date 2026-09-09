@@ -9,17 +9,13 @@ import { authenticate, isAdmin } from "../middleware/auth.middleware";
 
 const router = Router();
 
-// Public - Get all testimonials (no auth required)
+// ✅ Public - Get all testimonials (no auth required)
 router.get("/", getTestimonials);
 
-// Admin only - CRUD operations
-router.post("/admin/testimonials", authenticate, isAdmin, createTestimonial);
-router.put("/admin/testimonials/:id", authenticate, isAdmin, updateTestimonial);
-router.delete(
-  "/admin/testimonials/:id",
-  authenticate,
-  isAdmin,
-  deleteTestimonial,
-);
+// ✅ Admin only - CRUD operations
+// ✅ FIX: Path harus / (karena prefix /admin sudah di app.ts)
+router.post("/", authenticate, isAdmin, createTestimonial);
+router.put("/:id", authenticate, isAdmin, updateTestimonial);
+router.delete("/:id", authenticate, isAdmin, deleteTestimonial);
 
 export default router;

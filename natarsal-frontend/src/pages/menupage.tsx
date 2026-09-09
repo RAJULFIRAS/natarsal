@@ -1,8 +1,10 @@
+// D:/natarsal/natarsal-frontend/src/pages/menupage.tsx
 import React, { useState, useEffect } from "react";
 import Layout from "../components/layout/layout";
 import { useTranslation } from "react-i18next";
 import { FiSearch, FiStar, FiLoader } from "react-icons/fi";
 import api from "../config/api";
+import { getImageUrl } from "../config/api";
 
 interface MenuItem {
   id: string;
@@ -33,6 +35,7 @@ const MenuPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,6 +76,10 @@ const MenuPage: React.FC = () => {
     fetchData();
   }, []);
 
+  const handleImageError = (menuId: string) => {
+    setImageErrors((prev) => ({ ...prev, [menuId]: true }));
+  };
+
   const filteredItems = menus.filter((item) => {
     const matchesCategory =
       activeCategory === "all" || item.categoryId === activeCategory;
@@ -81,11 +88,6 @@ const MenuPage: React.FC = () => {
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch && item.isAvailable;
   });
-
-  const getImagePath = (imageName?: string) => {
-    if (!imageName) return "/images/placeholder.jpg";
-    return `/produckimage/${imageName}`;
-  };
 
   if (loading) {
     return (
@@ -185,7 +187,8 @@ const MenuPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item) => {
-                const imagePath = getImagePath(item.image);
+                const imageUrl = getImageUrl(item.image);
+                const hasError = imageErrors[item.id];
                 const isHovered = hoveredItem === item.id;
 
                 return (
@@ -196,7 +199,7 @@ const MenuPage: React.FC = () => {
                     onMouseLeave={() => setHoveredItem(null)}
                   >
                     <img
-                      src={imagePath}
+                      src={hasError ? "/images/placeholder.jpg" : imageUrl}
                       alt={item.name}
                       className={`w-full h-full object-cover transition-all duration-500 ${
                         isHovered
@@ -204,10 +207,7 @@ const MenuPage: React.FC = () => {
                           : "grayscale-0 brightness-100"
                       }`}
                       loading="lazy"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "/images/placeholder.jpg";
-                      }}
+                      onError={() => handleImageError(item.id)}
                     />
 
                     <div
@@ -236,12 +236,12 @@ const MenuPage: React.FC = () => {
                     <div className="absolute bottom-3 right-3 flex gap-1 z-10">
                       {item.isSpicy && (
                         <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">
-                          🌶️
+                          spicy
                         </span>
                       )}
                       {item.isVegetarian && (
                         <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded">
-                          🌿
+                          vegetarian
                         </span>
                       )}
                     </div>

@@ -14,7 +14,7 @@ const Hero: React.FC = () => {
       <div
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: 'url("/images/hero-bg.jpg")',
+          backgroundImage: 'url("/images/hero-bg.png")',
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

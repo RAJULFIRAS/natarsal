@@ -104,7 +104,8 @@
         "guests": "Number of Guests",
         "dateTime": "Date & Time",
         "notes": "Notes",
-        "status": "Status"
+        "status": "Status",
+        "person": "Person"
       },
       "hint": "* If you forgot your reservation number, please check your confirmation email",
       "saveNumber": "Save this number to check your reservation status",

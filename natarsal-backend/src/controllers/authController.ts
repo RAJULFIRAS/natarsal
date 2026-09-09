@@ -45,7 +45,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       config.JWT_SECRET,
-      { expiresIn: "15m" },
+      { expiresIn: "1d" },
     );
 
     const refreshToken = jwt.sign({ id: user.id }, config.REFRESH_SECRET, {
@@ -114,7 +114,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       config.JWT_SECRET,
-      { expiresIn: "15m" },
+      { expiresIn: "1d" },
     );
 
     const refreshToken = jwt.sign({ id: user.id }, config.REFRESH_SECRET, {
@@ -185,7 +185,7 @@ export const refreshToken = async (
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       config.JWT_SECRET,
-      { expiresIn: "15m" },
+      { expiresIn: "7d" as const },
     );
 
     res.json({

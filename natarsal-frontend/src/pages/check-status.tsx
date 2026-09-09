@@ -216,7 +216,10 @@ const CheckStatus: React.FC = () => {
                       {t("reservation.checkStatus.fields.guests")}
                     </p>
                     <p className="font-medium text-natarsal-black">
-                      {result.guests} {result.guests > 1 ? "orang" : "orang"}
+                      {result.guests}{" "}
+                      {result.guests > 1
+                        ? t("reservation.checkStatus.fields.person")
+                        : t("reservation.checkStatus.fields.person")}
                     </p>
                   </div>
                   <div className="col-span-2">

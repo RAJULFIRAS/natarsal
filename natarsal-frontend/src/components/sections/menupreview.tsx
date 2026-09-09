@@ -1,29 +1,15 @@
 // D:/natarsal/natarsal-frontend/src/components/sections/menupreview.tsx
 import { useEffect, useState } from "react";
-import apiClient, { MenuItem } from "../../config/api";
-
-// ✅ Helper untuk image URL
-const getImageUrl = (imagePath: string | null | undefined): string => {
-  if (!imagePath) return "/images/placeholder.jpg";
-
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    return imagePath;
-  }
-
-  if (imagePath.startsWith("/uploads/")) {
-    const baseUrl =
-      import.meta.env.VITE_API_URL?.replace("/api", "") ||
-      "http://localhost:3001";
-    return `${baseUrl}${imagePath}`;
-  }
-
-  return "/images/placeholder.jpg";
-};
+import { useTranslation } from "react-i18next";
+import { FiStar } from "react-icons/fi";
+import apiClient, { MenuItem, getImageUrl } from "../../config/api";
 
 export default function MenuPreview() {
+  const { t } = useTranslation();
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
@@ -43,7 +29,6 @@ export default function MenuPreview() {
         setError(err.message || "Something went wrong");
         console.error("MenuPreview error:", err);
       } finally {
-        // ✅ Delay kecil untuk menghindari blink
         setTimeout(() => {
           setLoading(false);
         }, 300);
@@ -74,47 +59,105 @@ export default function MenuPreview() {
     return <div className="text-center py-8">No menu items available</div>;
   }
 
+  // ✅ Ambil 6 menu teratas untuk preview (atau semua)
+  const displayMenus = menus.slice(0, 6);
+
   return (
-    <section className="py-12">
-      <h2 className="text-2xl font-bold mb-6">Our Menu</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {menus.map((menu) => (
-          <div
-            key={menu.id}
-            className="border rounded-lg p-4 shadow-sm hover:shadow-md transition"
-          >
-            <div className="w-full h-48 rounded-lg mb-3 overflow-hidden bg-gray-100">
-              <img
-                src={
-                  imageErrors[menu.id]
-                    ? "/images/placeholder.jpg"
-                    : getImageUrl(menu.image)
-                }
-                alt={menu.name}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                onError={() => handleImageError(menu.id)}
-              />
-            </div>
-            <h3 className="text-lg font-semibold">{menu.name}</h3>
-            <p className="text-gray-600 text-sm">{menu.description}</p>
-            <div className="flex justify-between items-center mt-2">
-              <span className="font-bold text-lg">
-                Rp {menu.price.toLocaleString()}
-              </span>
-              {menu.isAvailable ? (
-                <span className="text-green-600 text-sm">✅ Available</span>
-              ) : (
-                <span className="text-red-600 text-sm">❌ Unavailable</span>
-              )}
-            </div>
-            {menu.category && (
-              <span className="text-xs text-gray-500 mt-1 block">
-                {menu.category.name}
-              </span>
-            )}
+    <section className="section-padding bg-natarsal-cream/20">
+      <div className="container-custom">
+        <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="inline-block px-4 py-1.5 border border-natarsal-gold rounded-full text-natarsal-gold text-xs tracking-widest uppercase mb-4">
+            {t("menu.title")}
           </div>
-        ))}
+
+          <h2 className="section-title mb-4 text-white">
+            {t("menu.subtitle")}
+          </h2>
+
+          <p className="section-subtitle text-white/80">
+            {t("menu.description")}
+          </p>
+        </div>
+
+        {/* ✅ Grid 3 kolom - SAMA PERSIS dengan menupage.tsx */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayMenus.map((item) => {
+            const imageUrl = getImageUrl(item.image);
+            const hasError = imageErrors[item.id];
+            const isHovered = hoveredItem === String(item.id);
+
+            return (
+              <div
+                key={item.id}
+                className="relative w-full aspect-[3/2] overflow-hidden cursor-default bg-natarsal-cream rounded-xl"
+                onMouseEnter={() => setHoveredItem(String(item.id))}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                <img
+                  src={hasError ? "/images/placeholder.jpg" : imageUrl}
+                  alt={item.name}
+                  className={`w-full h-full object-cover transition-all duration-500 ${
+                    isHovered
+                      ? "grayscale brightness-50"
+                      : "grayscale-0 brightness-100"
+                  }`}
+                  loading="lazy"
+                  onError={() => handleImageError(item.id)}
+                />
+
+                {/* ✅ Overlay teks saat hover - SAMA PERSIS */}
+                <div
+                  className={`absolute inset-0 bg-black/50 transition-opacity duration-300 flex flex-col items-center justify-center p-4 text-center ${
+                    isHovered ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <h3 className="font-display text-xl font-bold text-white mb-2">
+                    {item.name}
+                  </h3>
+                  <p className="text-white/80 text-sm leading-relaxed line-clamp-3 max-w-xs">
+                    {item.description}
+                  </p>
+                  <p className="text-natarsal-gold font-bold text-lg mt-2">
+                    Rp {item.price.toLocaleString("id-ID")}
+                  </p>
+                </div>
+
+                {/* ✅ Tag Recommended - SAMA PERSIS */}
+                {item.isRecommended && (
+                  <span className="absolute top-3 left-3 bg-natarsal-gold text-white text-xs font-medium px-2 py-1 rounded-sm flex items-center gap-1 z-10">
+                    <FiStar className="fill-current text-[10px]" />
+                    {t("menu.recommended")}
+                  </span>
+                )}
+
+                {/* ✅ Tag Spicy & Vegetarian - SAMA PERSIS */}
+                <div className="absolute bottom-3 right-3 flex gap-1 z-10">
+                  {item.isSpicy && (
+                    <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">
+                      spicy
+                    </span>
+                  )}
+                  {item.isVegetarian && (
+                    <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded">
+                      vegetarian
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ✅ Tombol Lihat Semua Menu - SAMA PERSIS */}
+        <div className="text-center mt-12">
+          <a
+            href="/menu"
+            className="inline-flex items-center gap-2 px-8 py-3 bg-natarsal-gold text-white rounded-lg hover:bg-natarsal-black transition-colors"
+          >
+            {t("menu.viewAll")}
+            <span className="text-lg">→</span>
+          </a>
+        </div>
       </div>
     </section>
   );

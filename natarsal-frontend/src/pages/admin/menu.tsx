@@ -50,10 +50,35 @@ const AdminMenu: React.FC = () => {
   // ✅ Helper untuk image URL
   const getImageUrl = (imagePath: string | null | undefined) => {
     if (!imagePath) return null;
-    const baseUrl =
-      import.meta.env.VITE_API_URL?.replace("/api", "") ||
-      "http://localhost:3000";
-    return `${baseUrl}${imagePath}`;
+
+    // Jika sudah URL lengkap
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+      return imagePath;
+    }
+
+    // Jika path dimulai dengan /uploads/
+    if (imagePath.startsWith("/uploads/")) {
+      let baseUrl =
+        import.meta.env.VITE_API_URL?.replace("/api", "") ||
+        "http://localhost:3001";
+      const normalizedBase = baseUrl.endsWith("/")
+        ? baseUrl.slice(0, -1)
+        : baseUrl;
+      return `${normalizedBase}${imagePath}`;
+    }
+
+    // Jika path dimulai dengan /
+    if (imagePath.startsWith("/")) {
+      let baseUrl =
+        import.meta.env.VITE_API_URL?.replace("/api", "") ||
+        "http://localhost:3001";
+      const normalizedBase = baseUrl.endsWith("/")
+        ? baseUrl.slice(0, -1)
+        : baseUrl;
+      return `${normalizedBase}${imagePath}`;
+    }
+
+    return imagePath;
   };
 
   useEffect(() => {
@@ -347,12 +372,12 @@ const AdminMenu: React.FC = () => {
               <div className="aspect-video bg-natarsal-cream relative">
                 {menu.image ? (
                   <img
-                    src={getImageUrl(menu.image) || "/images/placeholder.jpg"}
+                    src={getImageUrl(menu.image) || "/images/placeholder.png"}
                     alt={menu.name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
-                        "/images/placeholder.jpg";
+                        "/images/placeholder.png";
                     }}
                   />
                 ) : (
@@ -403,7 +428,7 @@ const AdminMenu: React.FC = () => {
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => handleOpenModal(menu)}
-                    className="flex-1 px-3 py-1.5 bg-natarsal-cream text-natarsal-black rounded-lg hover:bg-natarsal-gold hover:text-white transition-colors text-sm flex items-center justify-center gap-1"
+                    className="flex-1 px-3 py-1.5 bg-natarsal-gold text-natarsal-white rounded-lg hover:bg-natarsal-black hover:text-white transition-colors text-sm flex items-center justify-center gap-1"
                   >
                     <FiEdit2 size={14} />
                     Edit
@@ -526,7 +551,7 @@ const AdminMenu: React.FC = () => {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
-                            "/images/placeholder.jpg";
+                            "/images/placeholder.png";
                         }}
                       />
                     ) : (

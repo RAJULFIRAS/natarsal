@@ -44,7 +44,7 @@ export class AuthService {
     };
 
     const accessToken = jwt.sign(payload, config.JWT_SECRET, {
-      expiresIn: "15m",
+      expiresIn: "1d",
     });
     const refreshToken = jwt.sign({ id: user.id }, config.REFRESH_SECRET, {
       expiresIn: "7d",
@@ -77,7 +77,7 @@ export class AuthService {
     };
 
     const accessToken = jwt.sign(payload, config.JWT_SECRET, {
-      expiresIn: "15m",
+      expiresIn: "1d",
     });
     const refreshToken = jwt.sign({ id: user.id }, config.REFRESH_SECRET, {
       expiresIn: "7d",
@@ -111,7 +111,7 @@ export class AuthService {
       const accessToken = jwt.sign(
         { id: user.id, email: user.email, role: user.role },
         config.JWT_SECRET,
-        { expiresIn: "15m" },
+        { expiresIn: "7d" as const },
       );
 
       return { accessToken };

@@ -5,8 +5,8 @@ const envSchema = z.object({
     .enum(["development", "test", "staging", "production"])
     .default("development"),
   MODE: z.enum(["development", "test", "production"]).default("development"),
-  API_BASE_URL: z.string().url().default("http://localhost:3000/api"),
-  VITE_API_BASE_URL: z.string().url().default("http://localhost:3000/api"),
+  API_BASE_URL: z.string().url().default("http://localhost:3001/api"),
+  VITE_API_BASE_URL: z.string().url().default("http://localhost:3001/api"),
   ENABLE_RESERVATION: z
     .string()
     .transform((val) => val === "true" || val === "1")
@@ -30,6 +30,7 @@ function getEnvVar(key: string, fallback: string): string {
 
 const PRODUCTION_API_URL = "https://natarsal-backend.vercel.app/api";
 const PRODUCTION_FRONTEND_URL = "https://natarsal.vercel.app";
+const DEVELOPMENT_API_URL = "http://localhost:3001/api";
 
 export const config = (() => {
   try {
@@ -40,11 +41,11 @@ export const config = (() => {
       MODE: import.meta.env.MODE || "development",
       API_BASE_URL: getEnvVar(
         "VITE_API_BASE_URL",
-        isProduction ? PRODUCTION_API_URL : "http://localhost:3000/api",
+        isProduction ? PRODUCTION_API_URL : DEVELOPMENT_API_URL,
       ),
       VITE_API_BASE_URL: getEnvVar(
         "VITE_API_BASE_URL",
-        isProduction ? PRODUCTION_API_URL : "http://localhost:3000/api",
+        isProduction ? PRODUCTION_API_URL : DEVELOPMENT_API_URL,
       ),
       ENABLE_RESERVATION: getEnvVar("VITE_ENABLE_RESERVATION", "false"),
       VITE_ENABLE_RESERVATION: getEnvVar("VITE_ENABLE_RESERVATION", "false"),
@@ -66,7 +67,7 @@ export const config = (() => {
     const isProduction = import.meta.env.MODE === "production";
     const fallbackApiUrl = isProduction
       ? "https://natarsal-backend.vercel.app/api"
-      : "http://localhost:3000/api";
+      : "http://localhost:3001/api";
 
     return {
       NODE_ENV: "development",

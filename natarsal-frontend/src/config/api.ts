@@ -1,7 +1,8 @@
 // D:/natarsal/natarsal-frontend/src/config/api.ts
 
+// ✅ Perbaiki base URL default ke port 3001
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+  import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 const DEFAULT_TIMEOUT = import.meta.env.PROD ? 10000 : 30000;
 
 export interface ApiResponse<T = unknown> {
@@ -58,6 +59,49 @@ export interface AuthData {
   password: string;
 }
 
+export const getBaseUrl = (): string => {
+  const base = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+  return base.replace(/\/api$/, "");
+};
+
+// ✅ Helper untuk image URL
+export const getImageUrl = (imagePath: string | null | undefined): string => {
+  if (!imagePath) return "/images/placeholder.png";
+
+  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+    return imagePath;
+  }
+
+  // ✅ Gunakan base URL dari environment
+  const baseUrl =
+    import.meta.env.VITE_API_URL?.replace("/api", "") ||
+    "http://localhost:3001";
+
+  if (imagePath.startsWith("/uploads/")) {
+    return `${baseUrl}${imagePath}`;
+  }
+
+  if (imagePath.startsWith("/")) {
+    return `${baseUrl}${imagePath}`;
+  }
+
+  return imagePath;
+};
+
+// ✅ Helper untuk fetch gambar dengan CORS
+export const fetchImageWithCors = async (url: string): Promise<Blob> => {
+  const response = await fetch(url, {
+    mode: "cors",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.status}`);
+  }
+
+  return response.blob();
+};
+
 async function fetchWithTimeout<T>(
   url: string,
   options: RequestInit = {},
@@ -67,13 +111,28 @@ async function fetchWithTimeout<T>(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
+    // ✅ Cek apakah body adalah FormData
+    const isFormData = options.body instanceof FormData;
+
+    // ✅ Buat headers dengan tipe yang aman
+    const headers: Record<string, string> = {
+      ...((options.headers as Record<string, string>) || {}),
+    };
+
+    // ✅ Hanya set Content-Type jika BUKAN FormData
+    if (!isFormData && !headers["Content-Type"]) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    // ✅ Jika FormData, hapus Content-Type (biar browser set sendiri)
+    if (isFormData) {
+      delete headers["Content-Type"];
+    }
+
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
+      headers,
     });
 
     clearTimeout(timeoutId);
@@ -97,14 +156,63 @@ async function fetchWithTimeout<T>(
 
 class ApiClient {
   private baseUrl: string;
+  private isRefreshing: boolean = false;
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
+  // ✅ Auto-refresh token interceptor
+  private async refreshTokenIfNeeded(): Promise<boolean> {
+    // Jika sudah dalam proses refresh, tunggu hasilnya
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      console.log("No refresh token available");
+      return false;
+    }
+
+    this.isRefreshing = true;
+    this.refreshPromise = (async () => {
+      try {
+        console.log("🔄 Auto-refreshing token...");
+        const response = await this.refreshToken(refreshToken);
+
+        if (response.success && response.data?.token) {
+          localStorage.setItem("token", response.data.token);
+          console.log("✅ Token auto-refreshed successfully");
+          return true;
+        }
+
+        console.log("❌ Auto-refresh failed:", response.error?.message);
+        // Clear invalid tokens
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        return false;
+      } catch (error) {
+        console.error("❌ Auto-refresh error:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        return false;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
+    retryCount: number = 0,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
@@ -124,10 +232,45 @@ class ApiClient {
       delete headers["Content-Type"];
     }
 
-    return fetchWithTimeout<T>(url, {
-      ...options,
-      headers,
-    });
+    try {
+      return await fetchWithTimeout<T>(url, {
+        ...options,
+        headers,
+      });
+    } catch (error: any) {
+      // ✅ Jika token expired (401) dan belum retry
+      const isAuthError =
+        error.message?.includes("Token expired") ||
+        error.message?.includes("Unauthorized") ||
+        error.message?.includes("Invalid token");
+
+      if (
+        isAuthError &&
+        retryCount === 0 &&
+        !endpoint.includes("/auth/login") &&
+        !endpoint.includes("/auth/refresh") &&
+        !endpoint.includes("/auth/register")
+      ) {
+        console.log("🔄 Token expired, attempting auto-refresh...");
+        const refreshed = await this.refreshTokenIfNeeded();
+
+        if (refreshed) {
+          const newToken = localStorage.getItem("token");
+          if (newToken) {
+            const newOptions = {
+              ...options,
+              headers: {
+                ...options.headers,
+                Authorization: `Bearer ${newToken}`,
+              },
+            };
+            console.log("🔄 Retrying request with new token...");
+            return this.request(endpoint, newOptions, retryCount + 1);
+          }
+        }
+      }
+      throw error;
+    }
   }
 
   async health(): Promise<
@@ -354,7 +497,7 @@ class ApiClient {
   }
 
   // ============================================================
-  // TESTIMONIALS - ✅ TAMBAHKAN INI
+  // TESTIMONIALS
   // ============================================================
 
   async getTestimonials(): Promise<ApiResponse<any[]>> {
@@ -372,7 +515,7 @@ class ApiClient {
       order?: number;
     },
   ): Promise<ApiResponse<any>> {
-    return this.request("/admin/testimonials", {
+    return this.request("/testimonials", {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
@@ -392,7 +535,7 @@ class ApiClient {
       isActive: boolean;
     }>,
   ): Promise<ApiResponse<any>> {
-    return this.request(`/admin/testimonials/${id}`, {
+    return this.request(`/testimonials/${id}`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(data),
@@ -403,7 +546,7 @@ class ApiClient {
     token: string,
     id: number,
   ): Promise<ApiResponse<any>> {
-    return this.request(`/admin/testimonials/${id}`, {
+    return this.request(`/testimonials/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });

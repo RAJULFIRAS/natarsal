@@ -104,7 +104,8 @@
         "guests": "Jumlah Tamu",
         "dateTime": "Tanggal & Waktu",
         "notes": "Catatan",
-        "status": "Status"
+        "status": "Status",
+        "person": "Orang"
       },
       "hint": "* Jika Anda lupa nomor reservasi, silakan cek email konfirmasi yang dikirimkan",
       "saveNumber": "Simpan nomor ini untuk cek status reservasi",
