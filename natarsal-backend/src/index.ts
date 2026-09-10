@@ -1,7 +1,7 @@
 import app from "./app";
 import { config } from "./config/env";
 
-const PORT = config.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
   console.log("=".repeat(50));
