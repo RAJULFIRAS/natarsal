@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FiPlus,
   FiEdit2,
@@ -6,8 +6,9 @@ import {
   FiX,
   FiLoader,
   FiStar,
+  FiImage,
 } from "react-icons/fi";
-import apiClient from "../../config/api";
+import apiClient, { getImageUrl } from "../../config/api";
 
 interface Testimonial {
   id: number;
@@ -20,7 +21,7 @@ interface Testimonial {
   order: number;
 }
 
-const AdminTestimonials: React.FC = () => {
+const Testimonials: React.FC = () => {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,11 +29,14 @@ const AdminTestimonials: React.FC = () => {
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [formData, setFormData] = useState({
     name: "",
     role: "",
     content: "",
-    image: "",
     rating: 5,
     order: 0,
   });
@@ -62,37 +66,76 @@ const AdminTestimonials: React.FC = () => {
         name: testimonial.name,
         role: testimonial.role,
         content: testimonial.content,
-        image: testimonial.image || "",
         rating: testimonial.rating,
         order: testimonial.order,
       });
+      if (testimonial.image) {
+        setImagePreview(testimonial.image);
+      } else {
+        setImagePreview(null);
+      }
     } else {
       setEditing(null);
       setFormData({
         name: "",
         role: "",
         content: "",
-        image: "",
         rating: 5,
         order: testimonials.length,
       });
+      setImagePreview(null);
     }
+    setImageFile(null);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditing(null);
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
-  // ✅ FIX: Tambahkan async dan ambil token di dalam function
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File terlalu besar. Maksimal 5MB.");
+        return;
+      }
+
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/gif",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        setError(
+          "Tipe file tidak diizinkan. Gunakan JPEG, PNG, WEBP, atau GIF.",
+        );
+        return;
+      }
+
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormLoading(true);
     setError(null);
 
     try {
-      // ✅ Ambil token dari localStorage di dalam function
       const token = localStorage.getItem("token");
       if (!token) {
         setError("Not authenticated");
@@ -100,15 +143,34 @@ const AdminTestimonials: React.FC = () => {
         return;
       }
 
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name.trim());
+      formDataToSend.append("role", formData.role.trim());
+      formDataToSend.append("content", formData.content.trim());
+      formDataToSend.append("rating", String(formData.rating));
+      formDataToSend.append("order", String(formData.order));
+
+      if (imageFile) {
+        formDataToSend.append("image", imageFile);
+      }
+
+      console.log("Submitting testimonial:");
+      for (const [key, value] of formDataToSend.entries()) {
+        console.log(
+          `  ${key}:`,
+          value instanceof File ? `File: ${value.name}` : value,
+        );
+      }
+
       let response;
       if (editing) {
         response = await apiClient.updateTestimonial(
           token,
           editing.id,
-          formData,
+          formDataToSend,
         );
       } else {
-        response = await apiClient.createTestimonial(token, formData);
+        response = await apiClient.createTestimonial(token, formDataToSend);
       }
 
       if (response.success) {
@@ -145,23 +207,6 @@ const AdminTestimonials: React.FC = () => {
     }
   };
 
-  const toggleActive = async (id: number, currentStatus: boolean) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Not authenticated");
-        return;
-      }
-
-      await apiClient.updateTestimonial(token, id, {
-        isActive: !currentStatus,
-      });
-      await fetchTestimonials();
-    } catch (err: any) {
-      setError(err.message || "Failed to update status");
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -172,7 +217,6 @@ const AdminTestimonials: React.FC = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display text-2xl font-bold text-natarsal-white/70">
@@ -200,12 +244,14 @@ const AdminTestimonials: React.FC = () => {
         </div>
       )}
 
-      {/* Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-natarsal-cream/30">
               <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-natarsal-black/60 uppercase tracking-wider">
+                  Foto
+                </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-natarsal-black/60 uppercase tracking-wider">
                   Nama
                 </th>
@@ -214,9 +260,6 @@ const AdminTestimonials: React.FC = () => {
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-natarsal-black/60 uppercase tracking-wider">
                   Rating
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-natarsal-black/60 uppercase tracking-wider">
-                  Status
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-natarsal-black/60 uppercase tracking-wider">
                   Aksi
@@ -240,14 +283,28 @@ const AdminTestimonials: React.FC = () => {
                     className="hover:bg-natarsal-cream/20 transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-natarsal-gold text-white flex items-center justify-center text-sm font-bold">
-                          {t.name.charAt(0)}
-                        </div>
-                        <span className="font-medium text-natarsal-black">
-                          {t.name}
-                        </span>
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-natarsal-cream flex-shrink-0">
+                        {t.image ? (
+                          <img
+                            src={getImageUrl(t.image)}
+                            alt={t.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src =
+                                "/images/placeholder.png";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-natarsal-gold text-white font-bold">
+                            {t.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
                       </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="font-medium text-natarsal-black">
+                        {t.name}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-natarsal-black/60">
                       {t.role}
@@ -266,18 +323,7 @@ const AdminTestimonials: React.FC = () => {
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => toggleActive(t.id, t.isActive)}
-                        className={`px-2 py-1 rounded-full text-xs font-medium transition-colors ${
-                          t.isActive
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-red-100 text-red-700 hover:bg-red-200"
-                        }`}
-                      >
-                        {t.isActive ? "Aktif" : "Nonaktif"}
-                      </button>
-                    </td>
+
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <button
@@ -302,7 +348,6 @@ const AdminTestimonials: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6">
@@ -366,17 +411,42 @@ const AdminTestimonials: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
-                  URL Foto (opsional)
+                  Foto (opsional)
                 </label>
-                <input
-                  type="text"
-                  value={formData.image}
-                  onChange={(e) =>
-                    setFormData({ ...formData, image: e.target.value })
-                  }
-                  placeholder="https://example.com/photo.png"
-                  className="w-full px-4 py-2 rounded-lg border border-natarsal-black/10 focus:border-natarsal-gold focus:ring-2 focus:ring-natarsal-gold/20 outline-none transition-all"
-                />
+                <div className="flex items-center gap-4">
+                  <div className="w-20 h-20 bg-natarsal-cream rounded-lg overflow-hidden flex-shrink-0">
+                    {imagePreview ? (
+                      <img
+                        src={
+                          imagePreview.startsWith("data:") ||
+                          imagePreview.startsWith("http")
+                            ? imagePreview
+                            : getImageUrl(imagePreview)
+                        }
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "/images/placeholder.png";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-natarsal-black/20">
+                        <FiImage size={24} />
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="flex-1 text-sm text-natarsal-black/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-natarsal-cream file:text-natarsal-black hover:file:bg-natarsal-gold hover:file:text-white transition-colors"
+                  />
+                </div>
+                <p className="text-xs text-natarsal-black/40 mt-1">
+                  Maks 5MB. Format: JPEG, PNG, WEBP, GIF
+                </p>
               </div>
 
               <div>
@@ -427,4 +497,4 @@ const AdminTestimonials: React.FC = () => {
   );
 };
 
-export default AdminTestimonials;
+export default Testimonials;

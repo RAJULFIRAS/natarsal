@@ -43,3 +43,13 @@ fly.toml
 
 prisma/*.db
 prisma/*.db-journal
+
+/test-results/
+/playwright-report/
+/playwright/.cache/
+
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+/playwright/.auth/

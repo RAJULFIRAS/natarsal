@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/admin/dashboard.tsx
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { FiMessageSquare } from "react-icons/fi";
@@ -31,7 +30,6 @@ const AdminLayout: React.FC = () => {
     navigate("/admin/login");
   };
 
-  // ✅ FIX: Hanya 1 deklarasi navItems
   const navItems = [
     { path: "/admin/dashboard", icon: FiLayout, label: "Dashboard" },
     { path: "/admin/reservations", icon: FiCalendar, label: "Reservasi" },
@@ -45,19 +43,17 @@ const AdminLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-natarsal-cream/20">
-      {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full bg-white shadow-xl z-50 transition-all duration-300 ${
           isSidebarOpen ? "w-64" : "w-20"
         } ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="flex items-center justify-between p-4 border-b border-natarsal-black/5">
             <Link to="/admin/dashboard" className="flex items-center gap-2">
               <div className="w-8 h-8">
                 <img
-                  src="public/images/logo.png"
+                  src="/images/logo.png"
                   alt="Logo"
                   className="w-full h-full object-contain"
                 />
@@ -81,12 +77,12 @@ const AdminLayout: React.FC = () => {
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="md:hidden p-2 rounded-lg hover:bg-natarsal-cream transition-colors"
+              aria-label="Close sidebar"
             >
               ✕
             </button>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 p-4 space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -110,7 +106,6 @@ const AdminLayout: React.FC = () => {
             })}
           </nav>
 
-          {/* User Info */}
           <div className="border-t border-natarsal-black/5 p-4">
             <div
               className={`flex items-center gap-3 ${!isSidebarOpen && "justify-center"}`}
@@ -132,6 +127,7 @@ const AdminLayout: React.FC = () => {
                   !isSidebarOpen && "ml-0"
                 }`}
                 title="Logout"
+                data-testid="logout-button-sidebar"
               >
                 <FiLogOut size={20} />
               </button>
@@ -140,7 +136,6 @@ const AdminLayout: React.FC = () => {
         </div>
       </aside>
 
-      {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -148,17 +143,17 @@ const AdminLayout: React.FC = () => {
         />
       )}
 
-      {/* Main Content */}
       <div
         className={`transition-all duration-300 ${
           isSidebarOpen ? "md:ml-64" : "md:ml-20"
         }`}
       >
-        {/* Header */}
         <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md shadow-sm px-4 py-3 flex items-center justify-between">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
             className="md:hidden p-2 rounded-lg hover:bg-natarsal-cream transition-colors"
+            aria-label="Open sidebar"
+            data-testid="open-sidebar-button"
           >
             <FiMenu size={24} />
           </button>
@@ -177,13 +172,15 @@ const AdminLayout: React.FC = () => {
             <button
               onClick={handleLogout}
               className="md:hidden p-2 rounded-lg hover:bg-red-50 text-red-500 transition-colors"
+              aria-label="Logout"
+              title="Logout"
+              data-testid="logout-button-header"
             >
               <FiLogOut size={20} />
             </button>
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="p-4 md:p-6">
           <Outlet />
         </main>

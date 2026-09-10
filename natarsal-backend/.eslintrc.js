@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/.eslintrc.js
 module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
@@ -13,8 +12,7 @@ module.exports = {
     es6: true,
   },
   rules: {
-    // TypeScript
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": [
       "error",
       {
@@ -26,8 +24,6 @@ module.exports = {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/ban-ts-comment": "off",
-
-    // General
     "no-console": "off",
     "no-unused-vars": "off",
   },

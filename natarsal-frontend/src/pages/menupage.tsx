@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/menupage.tsx
 import React, { useState, useEffect } from "react";
 import Layout from "../components/layout/layout";
 import { useTranslation } from "react-i18next";
@@ -172,7 +171,7 @@ const MenuPage: React.FC = () => {
                       : "bg-white text-natarsal-black/60 hover:bg-natarsal-cream hover:text-natarsal-black"
                   }`}
                 >
-                  {category.name}
+                  {t(`menu.categories.${category.slug}`, category.name)}
                 </button>
               ))}
             </div>

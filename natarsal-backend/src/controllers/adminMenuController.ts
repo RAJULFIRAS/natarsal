@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/src/controllers/adminMenuController.ts
 import { Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { AuthRequest } from "../types";
@@ -7,15 +6,11 @@ import fs from "fs";
 
 const prisma = new PrismaClient();
 
-// ============================================================
-// CREATE MENU (ADMIN)
-// ============================================================
 export const createMenu = async (
   req: AuthRequest,
   res: Response,
 ): Promise<void> => {
   try {
-    // ✅ Ambil dari body (multer akan parse FormData)
     const {
       name,
       description,
@@ -29,12 +24,11 @@ export const createMenu = async (
 
     const file = (req as any).file;
 
-    console.log("📝 Create Menu - Body:", req.body);
-    console.log("📝 Create Menu - File:", file?.filename || "No file");
+    console.log("Create Menu - Body:", req.body);
+    console.log("Create Menu - File:", file?.filename || "No file");
 
-    // ✅ Validasi
     if (!name || typeof name !== "string" || !name.trim()) {
-      console.log("❌ Name is missing or invalid:", name);
+      console.log("Name is missing or invalid:", name);
       res.status(400).json({
         success: false,
         error: {
@@ -75,7 +69,6 @@ export const createMenu = async (
       return;
     }
 
-    // ✅ Cek category exists
     const category = await prisma.category.findUnique({
       where: { id: parseInt(categoryId) },
     });
@@ -93,7 +86,6 @@ export const createMenu = async (
       return;
     }
 
-    // ✅ Cek duplicate name dalam category yang sama
     const existing = await prisma.menu.findFirst({
       where: {
         name: name.trim(),
@@ -114,7 +106,6 @@ export const createMenu = async (
       return;
     }
 
-    // ✅ Create menu
     const menu = await prisma.menu.create({
       data: {
         name: name.trim(),
@@ -151,9 +142,6 @@ export const createMenu = async (
   }
 };
 
-// ============================================================
-// UPDATE MENU (ADMIN) - Sama seperti create
-// ============================================================
 export const updateMenu = async (
   req: AuthRequest,
   res: Response,
@@ -280,9 +268,6 @@ export const updateMenu = async (
   }
 };
 
-// ============================================================
-// DELETE MENU (ADMIN)
-// ============================================================
 export const deleteMenu = async (
   req: AuthRequest,
   res: Response,

@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/components/ProtectedRoute.tsx
 import React, { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { FiLoader } from "react-icons/fi";
@@ -16,7 +15,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // ✅ Refresh token function dengan error handling lebih baik
   const refreshAccessToken = async (): Promise<boolean> => {
     const refreshToken = localStorage.getItem("refreshToken");
     if (!refreshToken) {
@@ -25,19 +23,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
 
     try {
-      console.log("🔄 Attempting to refresh token...");
+      console.log("Attempting to refresh token...");
       const response = await apiClient.refreshToken(refreshToken);
 
       if (response.success && response.data?.token) {
         localStorage.setItem("token", response.data.token);
-        console.log("✅ Token refreshed successfully");
+        console.log("Token refreshed successfully");
         return true;
       }
 
-      console.log("❌ Refresh token failed:", response.error?.message);
+      console.log("Refresh token failed:", response.error?.message);
       return false;
     } catch (error) {
-      console.error("❌ Refresh token error:", error);
+      console.error("Refresh token error:", error);
       return false;
     }
   };
@@ -47,7 +45,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       setIsLoading(true);
 
       try {
-        let token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");
 
         if (!token) {
           console.log("No token found, redirecting to login");
@@ -56,10 +54,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           return;
         }
 
-        // Try to verify token
         let response = await apiClient.getMe(token);
 
-        // If token expired, try refresh
         if (!response.success && response.error?.code === "UNAUTHORIZED") {
           console.log("Token expired, attempting refresh...");
           const refreshed = await refreshAccessToken();
@@ -67,10 +63,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           if (refreshed) {
             const newToken = localStorage.getItem("token")!;
             response = await apiClient.getMe(newToken);
-            console.log("✅ Auth verified after refresh");
+            console.log("Auth verified after refresh");
           } else {
-            console.log("❌ Refresh failed, redirecting to login");
-            // Clear invalid tokens
+            console.log("Refresh failed, redirecting to login");
             localStorage.removeItem("token");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("user");
@@ -83,18 +78,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         if (response.success && response.data) {
           setIsAuthenticated(true);
           setIsAdmin(response.data.role === "ADMIN");
-          // Update user data in localStorage
           localStorage.setItem("user", JSON.stringify(response.data));
         } else {
-          // Token invalid
-          console.log("❌ Auth verification failed:", response.error?.message);
+          console.log("Auth verification failed:", response.error?.message);
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
           setIsAuthenticated(false);
         }
       } catch (error) {
-        console.error("❌ Auth verification error:", error);
+        console.error("Auth verification error:", error);
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
@@ -103,7 +96,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     verifyAuth();
 
-    // ✅ Auto-refresh token setiap 10 menit (jika user aktif)
     const refreshInterval = setInterval(
       () => {
         if (isAuthenticated) {
@@ -111,7 +103,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         }
       },
       10 * 60 * 1000,
-    ); // 10 menit
+    );
 
     return () => clearInterval(refreshInterval);
   }, [location, isAuthenticated]);

@@ -22,7 +22,7 @@ const Logo: React.FC<LogoProps> = ({
     <Link to="/" className={`flex items-center gap-2 group ${className}`}>
       <div className="relative transition-transform duration-300 group-hover:scale-105">
         <img
-          src="public/images/logo.png"
+          src="/images/logo.png"
           alt="Natarsal Logo"
           className="w-10 h-10 object-contain"
         />

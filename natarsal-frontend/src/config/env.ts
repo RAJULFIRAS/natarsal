@@ -62,7 +62,7 @@ export const config = (() => {
 
     return envSchema.parse(env);
   } catch (error) {
-    console.error("❌ Invalid environment variables, using defaults");
+    console.error("Invalid environment variables, using defaults");
 
     const isProduction = import.meta.env.MODE === "production";
     const fallbackApiUrl = isProduction

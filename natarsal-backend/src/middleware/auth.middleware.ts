@@ -1,8 +1,7 @@
-// D:/natarsal/natarsal-backend/src/middleware/auth.middleware.ts
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { config } from "../config/env";
-import { UnauthorizedError } from "./error-handler.middleware";
+import { UnauthorizedError, ForbiddenError } from "./error-handler.middleware";
 import { AuthUser } from "../types";
 
 declare global {
@@ -21,7 +20,8 @@ export const authenticate = async (
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      throw new UnauthorizedError("Authentication required");
+      next(new UnauthorizedError("Authentication required"));
+      return;
     }
 
     const token = authHeader.substring(7);
@@ -43,10 +43,12 @@ export const isAdmin = (
   next: NextFunction,
 ): void => {
   if (!req.user) {
-    throw new UnauthorizedError("Authentication required");
+    next(new UnauthorizedError("Authentication required"));
+    return;
   }
   if (req.user.role !== "ADMIN") {
-    throw new UnauthorizedError("Admin access required");
+    next(new ForbiddenError("Admin access required"));
+    return;
   }
   next();
 };

@@ -1,12 +1,8 @@
-// D:/natarsal/natarsal-backend/src/controllers/publicController.ts
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// ============================================================
-// CHECK RESERVATION STATUS (PUBLIC)
-// ============================================================
 export const checkReservationStatus = async (
   req: Request,
   res: Response,

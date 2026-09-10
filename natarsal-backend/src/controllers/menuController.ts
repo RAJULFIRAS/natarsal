@@ -1,14 +1,9 @@
-// D:/natarsal/natarsal-backend/src/controllers/menuController.ts
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// ============================================================
-// GET ALL MENUS
-// ============================================================
 export const getMenus = async (_req: Request, res: Response): Promise<void> => {
-  // ✅ _req
   try {
     const menus = await prisma.menu.findMany({
       include: {
@@ -42,9 +37,6 @@ export const getMenus = async (_req: Request, res: Response): Promise<void> => {
   }
 };
 
-// ============================================================
-// GET MENU BY ID
-// ============================================================
 export const getMenuById = async (
   req: Request,
   res: Response,
@@ -105,14 +97,10 @@ export const getMenuById = async (
   }
 };
 
-// ============================================================
-// GET CATEGORIES
-// ============================================================
 export const getCategories = async (
   _req: Request,
   res: Response,
 ): Promise<void> => {
-  // ✅ _req
   try {
     const categories = await prisma.category.findMany({
       include: {

@@ -1,11 +1,7 @@
-// D:/natarsal/natarsal-backend/src/middleware/rate-limit.middleware.ts
 import rateLimit from "express-rate-limit";
 
-// ============================================================
-// GENERAL RATE LIMIT: 100 requests per 15 minutes
-// ============================================================
 export const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: {
     success: false,
@@ -20,11 +16,8 @@ export const generalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// ============================================================
-// STRICT RATE LIMIT: 5 requests per minute (for auth)
-// ============================================================
 export const authLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
+  windowMs: 60 * 1000,
   max: 5,
   message: {
     success: false,

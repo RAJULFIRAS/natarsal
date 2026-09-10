@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/admin/login.tsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiLoader, FiAlertCircle } from "react-icons/fi";
@@ -54,23 +53,19 @@ const AdminLogin: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-natarsal-cream/30 px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-8 h-8">
-            <img
-              src="public/images/logo.png"
-              alt="Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
+        <div className="flex justify-center mb-8">
+          <img
+            src="/images/logo.png"
+            alt="Natarsal Logo"
+            className="w-32 h-32 md:w-40 md:h-40 object-contain"
+          />
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="font-display text-2xl font-bold text-natarsal-black mb-2">
             WELCOME BACK
           </h2>
-          <br></br>
+          <br />
 
           {error && (
             <div className="bg-white border border-red-500 rounded-lg p-4 mb-6 flex items-start gap-3">
@@ -81,7 +76,6 @@ const AdminLogin: React.FC = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
-              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
                   Email
@@ -100,7 +94,6 @@ const AdminLogin: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
                   Password

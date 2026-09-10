@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/src/services/auth.service.ts
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { PrismaClient, Role } from "@prisma/client";
@@ -36,7 +35,6 @@ export class AuthService {
       },
     });
 
-    // ✅ FIX: user.id sudah number, langsung pakai
     const payload = {
       id: user.id,
       email: user.email,
@@ -69,7 +67,6 @@ export class AuthService {
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) throw new UnauthorizedError("Invalid credentials");
 
-    // ✅ FIX: user.id sudah number
     const payload = {
       id: user.id,
       email: user.email,
@@ -97,13 +94,12 @@ export class AuthService {
 
   async refreshToken(token: string): Promise<{ accessToken: string }> {
     try {
-      // ✅ FIX: decoded.id dari JWT adalah number
       const decoded = jwt.verify(token, config.REFRESH_SECRET) as {
         id: number;
       };
 
       const user = await prisma.user.findUnique({
-        where: { id: decoded.id }, // ← decoded.id sudah number!
+        where: { id: decoded.id },
       });
 
       if (!user) throw new UnauthorizedError("User not found");

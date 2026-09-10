@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/reservationpage.tsx
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -45,7 +44,8 @@ const ReservationPage: React.FC = () => {
         customerName: formData.name,
         customerEmail: formData.email,
         customerPhone: formData.phone,
-        date: `${formData.date}T${formData.time}`,
+        date: formData.date,
+        time: formData.time,
         guests: Number(formData.guests),
         notes: formData.notes,
       });

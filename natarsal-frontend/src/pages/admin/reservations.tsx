@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/admin/reservations.tsx
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -9,6 +8,8 @@ import {
   FiXCircle,
   FiDownload,
   FiLoader,
+  FiList,
+  FiGrid,
 } from "react-icons/fi";
 import apiClient from "../../config/api";
 
@@ -39,13 +40,18 @@ const AdminReservations: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   const limit = 10;
 
   useEffect(() => {
+    setShowAll(false);
+    setPage(1);
+  }, [selectedStatus, searchQuery]);
+
+  useEffect(() => {
     fetchReservations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, selectedStatus, searchQuery]);
+  }, [page, selectedStatus, searchQuery, showAll]);
 
   const fetchReservations = async () => {
     try {
@@ -55,10 +61,14 @@ const AdminReservations: React.FC = () => {
 
       const statusFilter =
         selectedStatus !== "all" ? selectedStatus : undefined;
+
+      const requestLimit = showAll ? total : limit;
+      const requestPage = showAll ? 1 : page;
+
       const response = await apiClient.getReservations(
         token,
-        page,
-        limit,
+        requestPage,
+        requestLimit,
         undefined,
         statusFilter,
         searchQuery || undefined,
@@ -74,6 +84,16 @@ const AdminReservations: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleShowAll = () => {
+    setShowAll(true);
+    setPage(1);
+  };
+
+  const handleShowPaged = () => {
+    setShowAll(false);
+    setPage(1);
   };
 
   const handleStatusChange = async (id: number, status: string) => {
@@ -126,14 +146,12 @@ const AdminReservations: React.FC = () => {
 
       const params: { from?: string; to?: string; status?: string } = {};
 
-      // Tambahkan filter status jika tidak "all"
       if (selectedStatus !== "all") {
         params.status = selectedStatus;
       }
 
       const blob = await apiClient.exportReservations(token, params);
 
-      // Download file
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -197,7 +215,7 @@ const AdminReservations: React.FC = () => {
     });
   };
 
-  if (loading && page === 1) {
+  if (loading && page === 1 && !showAll) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-natarsal-gold border-t-transparent" />
@@ -207,7 +225,6 @@ const AdminReservations: React.FC = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <p className="font-display text-2xl font-bold text-natarsal-white/70 text-center">
@@ -228,10 +245,8 @@ const AdminReservations: React.FC = () => {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
-          {/* Search */}
           <div className="relative flex-1">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-natarsal-black/40" />
             <input
@@ -243,7 +258,6 @@ const AdminReservations: React.FC = () => {
             />
           </div>
 
-          {/* Status Filter */}
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
             {statusOptions.map((option) => (
               <button
@@ -274,7 +288,6 @@ const AdminReservations: React.FC = () => {
         </div>
       )}
 
-      {/* Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -392,31 +405,68 @@ const AdminReservations: React.FC = () => {
           </table>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-natarsal-black/5">
-            <p className="text-sm text-natarsal-black/40">
-              Menampilkan {(page - 1) * limit + 1} -{" "}
-              {Math.min(page * limit, total)} dari {total}
-            </p>
-            <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-natarsal-black/5">
+          <p className="text-sm text-natarsal-black/40">
+            {showAll
+              ? `Menampilkan semua ${total} data`
+              : `Menampilkan ${(page - 1) * limit + 1} - ${Math.min(
+                  page * limit,
+                  total,
+                )} dari ${total}`}
+          </p>
+
+          <div className="flex items-center gap-2">
+            {showAll ? (
               <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="p-2 rounded-lg border border-natarsal-black/10 hover:bg-natarsal-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleShowPaged}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-natarsal-cream/50 text-natarsal-black/60 hover:bg-natarsal-cream hover:text-natarsal-black transition-all"
+                title="Kembali ke tampilan per halaman"
               >
-                <FiChevronLeft />
+                <FiGrid size={16} />
+                Tampilkan Per Halaman
               </button>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="p-2 rounded-lg border border-natarsal-black/10 hover:bg-natarsal-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <FiChevronRight />
-              </button>
-            </div>
+            ) : (
+              <>
+                {total > limit && (
+                  <button
+                    onClick={handleShowAll}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-natarsal-gold text-white hover:bg-natarsal-black transition-all"
+                    title={`Tampilkan semua ${total} data`}
+                  >
+                    <FiList size={16} />
+                    Tampilkan Semua ({total})
+                  </button>
+                )}
+
+                {totalPages > 1 && (
+                  <>
+                    <button
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1}
+                      className="p-2 rounded-lg border border-natarsal-black/10 hover:bg-natarsal-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Halaman sebelumnya"
+                    >
+                      <FiChevronLeft />
+                    </button>
+                    <span className="text-sm text-natarsal-black/60 px-2">
+                      {page} / {totalPages}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={page === totalPages}
+                      className="p-2 rounded-lg border border-natarsal-black/10 hover:bg-natarsal-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Halaman berikutnya"
+                    >
+                      <FiChevronRight />
+                    </button>
+                  </>
+                )}
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

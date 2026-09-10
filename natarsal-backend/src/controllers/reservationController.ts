@@ -1,67 +1,77 @@
-// D:/natarsal/natarsal-backend/src/controllers/reservationController.ts
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
 import { AuthRequest } from "../types";
 
 const prisma = new PrismaClient();
 
-// ============================================================
-// CREATE RESERVATION (PUBLIC - No Auth Required)
-// ============================================================
+const createReservationSchema = z.object({
+  customerName: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must not exceed 100 characters")
+    .regex(
+      /^[a-zA-Z\s'.,-]+$/,
+      "Name contains invalid characters. Only letters, spaces, and '.,- are allowed.",
+    ),
+  customerEmail: z.string().email("Invalid email format"),
+  customerPhone: z
+    .string()
+    .min(9, "Phone number is too short")
+    .max(20, "Phone number is too long")
+    .regex(/^\+?[0-9\s-]+$/, "Invalid phone number format"),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "Date must be in YYYY-MM-DD format (e.g., 2026-09-11)",
+  }),
+  time: z.string().regex(/^\d{2}:\d{2}$/, {
+    message: "Time must be in HH:MM format (e.g., 19:00)",
+  }),
+  guests: z.coerce
+    .number()
+    .int("Guests must be an integer")
+    .min(1, "Guests must be at least 1")
+    .max(20, "Guests must not exceed 20"),
+  notes: z.string().max(500, "Notes must not exceed 500 characters").optional(),
+});
+
 export const createReservation = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
   try {
-    const { customerName, customerEmail, customerPhone, date, guests, notes } =
-      req.body;
+    const validatedData = createReservationSchema.parse(req.body);
 
-    // Validasi input
-    if (!customerName || !customerEmail || !customerPhone || !date || !guests) {
-      res.status(400).json({
-        success: false,
-        error: {
-          code: "VALIDATION_ERROR",
-          message:
-            "All fields are required: customerName, customerEmail, customerPhone, date, guests",
-        },
-        timestamp: new Date().toISOString(),
-      });
-      return;
-    }
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      date,
+      time,
+      guests,
+      notes,
+    } = validatedData;
 
-    if (guests < 1 || guests > 20) {
-      res.status(400).json({
-        success: false,
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Guests must be between 1 and 20",
-        },
-        timestamp: new Date().toISOString(),
-      });
-      return;
-    }
-
-    // ✅ FIX: Generate unique reservation number dengan timestamp + random
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 7).toUpperCase();
     const reservationNumber = `RSV-${timestamp}-${random}`;
 
-    // ✅ FIX: Pastikan date adalah Date object yang valid
-    const reservationDate = new Date(date);
-    if (isNaN(reservationDate.getTime())) {
+    const reservationDate = new Date(`${date}T${time}:00+07:00`);
+
+    if (reservationDate < new Date()) {
       res.status(400).json({
         success: false,
         error: {
           code: "VALIDATION_ERROR",
-          message: "Invalid date format",
+          message: "Reservation date must be in the future",
+          details: {
+            date: ["Reservation date cannot be in the past"],
+          },
         },
         timestamp: new Date().toISOString(),
       });
       return;
     }
 
-    // Create reservation - biarkan Prisma generate id otomatis
     const reservation = await prisma.reservation.create({
       data: {
         reservationNumber,
@@ -69,7 +79,7 @@ export const createReservation = async (
         customerEmail: customerEmail.toLowerCase(),
         customerPhone,
         date: reservationDate,
-        guests: Number(guests),
+        guests,
         notes: notes || null,
         status: "PENDING",
       },
@@ -83,7 +93,31 @@ export const createReservation = async (
   } catch (error: any) {
     console.error("Create reservation error:", error);
 
-    // ✅ Handle unique constraint error
+    if (error instanceof z.ZodError) {
+      const details = error.errors.reduce(
+        (acc, err) => {
+          const field = err.path.join(".");
+          if (!acc[field]) {
+            acc[field] = [];
+          }
+          acc[field].push(err.message);
+          return acc;
+        },
+        {} as Record<string, string[]>,
+      );
+
+      res.status(400).json({
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Validation failed",
+          details,
+        },
+        timestamp: new Date().toISOString(),
+      });
+      return;
+    }
+
     if (error.code === "P2002") {
       res.status(409).json({
         success: false,
@@ -108,9 +142,6 @@ export const createReservation = async (
   }
 };
 
-// ============================================================
-// GET RESERVATIONS (ADMIN ONLY)
-// ============================================================
 export const getReservations = async (
   req: AuthRequest,
   res: Response,
@@ -120,10 +151,8 @@ export const getReservations = async (
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
-    // Build where clause
     const where: any = {};
 
-    // Date filter (range)
     if (req.query.date) {
       const startDate = new Date(req.query.date as string);
       const endDate = new Date(startDate);
@@ -134,17 +163,14 @@ export const getReservations = async (
       };
     }
 
-    // ✅ FIX: Status filter - hanya terima status yang valid
     if (req.query.status) {
       const validStatuses = ["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"];
       const status = (req.query.status as string).toUpperCase();
       if (validStatuses.includes(status)) {
         where.status = status;
       }
-      // Jika status tidak valid, abaikan filter
     }
 
-    // Search filter
     if (req.query.search) {
       const search = req.query.search as string;
       where.OR = [
@@ -154,7 +180,6 @@ export const getReservations = async (
       ];
     }
 
-    // Get data
     const [data, total] = await Promise.all([
       prisma.reservation.findMany({
         where,
@@ -200,9 +225,6 @@ export const getReservations = async (
   }
 };
 
-// ============================================================
-// GET RESERVATION BY ID (ADMIN ONLY)
-// ============================================================
 export const getReservationById = async (
   req: AuthRequest,
   res: Response,
@@ -264,9 +286,6 @@ export const getReservationById = async (
   }
 };
 
-// ============================================================
-// UPDATE RESERVATION STATUS (ADMIN ONLY)
-// ============================================================
 export const updateReservationStatus = async (
   req: AuthRequest,
   res: Response,
@@ -332,9 +351,6 @@ export const updateReservationStatus = async (
   }
 };
 
-// ============================================================
-// CANCEL RESERVATION (ADMIN ONLY)
-// ============================================================
 export const cancelReservation = async (
   req: AuthRequest,
   res: Response,

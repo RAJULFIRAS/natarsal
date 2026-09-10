@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/src/app.ts
 import express from "express";
 import { config } from "./config/env";
 import { errorHandler } from "./middleware/error-handler.middleware";
@@ -15,25 +14,20 @@ import testimonialRoutes from "./routes/testimonialRoutes";
 
 const app = express();
 
-// ✅ Security middleware
-app.use(securityConfig.securityHeaders);
 app.use(securityConfig.helmet);
 app.use(securityConfig.cors);
 
-// ✅ SERVE UPLOADS
 const uploadsPath = path.join(__dirname, "../uploads");
 
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
 
-console.log(`📁 Serving uploads from: ${uploadsPath}`);
+console.log(`Serving uploads from: ${uploadsPath}`);
 
-// ✅ SERVE STATIC FILES DENGAN CORS HEADER
 app.use(
   "/uploads",
   (_req, res, next) => {
-    // Tambahkan CORS header untuk gambar
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -49,7 +43,6 @@ app.use(
   }),
 );
 
-// ✅ DEBUG ROUTE
 app.get("/debug/uploads", (_req, res) => {
   try {
     const files = fs.readdirSync(uploadsPath);
@@ -63,29 +56,28 @@ app.get("/debug/uploads", (_req, res) => {
   }
 });
 
-// ✅ JSON parser
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// ✅ Rate limiting
 app.use("/api", securityConfig.rateLimiter);
 app.use("/api/auth/login", securityConfig.authLimiter);
 app.use("/api/auth/register", securityConfig.authLimiter);
 
-// Health check
-app.get("/health", (_req, res) => {
+const healthHandler = (_req: express.Request, res: express.Response) => {
   res.json({
     status: "ok",
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: config.NODE_ENV,
   });
-});
+};
+
+app.get("/health", healthHandler);
+app.get("/api/health", healthHandler);
 
 app.get("/ping", (_req, res) => {
   res.send("pong");
 });
 
-// ✅ API Routes
 app.use("/api/auth", express.json({ limit: "10mb" }), authRoutes);
 app.use(
   "/api/reservations",
@@ -103,7 +95,6 @@ app.use(
 
 app.use("/api/admin", adminMenuRoutes);
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,

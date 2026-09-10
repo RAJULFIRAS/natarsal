@@ -49,7 +49,7 @@ export class ErrorBoundary extends Component<
       return (
         <div className="min-h-screen flex items-center justify-center bg-natarsal-cream p-6">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
-            <div className="text-6xl mb-4">⚠️</div>
+            <div className="text-6xl mb-4">X</div>
             <h2 className="font-display text-2xl font-bold text-natarsal-black mb-2">
               Something went wrong
             </h2>

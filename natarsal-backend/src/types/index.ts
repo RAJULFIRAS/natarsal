@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/src/types/index.ts
 import { Request } from "express";
 import { Role } from "@prisma/client";
 

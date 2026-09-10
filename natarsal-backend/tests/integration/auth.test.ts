@@ -35,13 +35,14 @@ describe("Auth API Integration Tests", () => {
       expect(response.body.data).toHaveProperty("token");
     });
 
-    it("should return 400 for duplicate email", async () => {
+    it("should return 409 for duplicate email", async () => {
       const response = await request(app)
         .post("/api/auth/register")
         .send(testUser)
-        .expect(400);
+        .expect(409);
 
       expect(response.body).toHaveProperty("error");
+      expect(response.body.error).toHaveProperty("code", "CONFLICT");
     });
   });
 

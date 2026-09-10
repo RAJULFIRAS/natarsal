@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/src/services/reservation.service.ts
 import { PrismaClient } from "@prisma/client";
 import { ValidationError } from "../middleware/error-handler.middleware";
 

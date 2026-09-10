@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/check-status.tsx
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -105,7 +104,6 @@ const CheckStatus: React.FC = () => {
     <Layout>
       <section className="section-padding bg-natarsal-cream/20 min-h-[80vh]">
         <div className="container-custom max-w-2xl">
-          {/* Back Button */}
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-natarsal-white/60 hover:text-natarsal-white transition-colors mb-6"

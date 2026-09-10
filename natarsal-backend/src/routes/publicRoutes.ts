@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/src/routes/publicRoutes.ts
 import { Router } from "express";
 import { checkReservationStatus } from "../controllers/publicController";
 

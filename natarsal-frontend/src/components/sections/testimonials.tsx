@@ -1,9 +1,7 @@
-// D:/natarsal/natarsal-frontend/src/components/sections/testimonials.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { FiStar } from "react-icons/fi";
-import apiClient from "../../config/api";
-import { getImageUrl } from "../../config/api";
+import apiClient, { getImageUrl } from "../../config/api";
 
 interface Testimonial {
   id: number;
@@ -15,34 +13,11 @@ interface Testimonial {
   order: number;
 }
 
-// ✅ Component Avatar dengan fallback
 const TestimonialAvatar: React.FC<{ image?: string; name: string }> = ({
   image,
   name,
 }) => {
-  const [error, setError] = useState(false);
-  const [src, setSrc] = useState("");
-
-  useEffect(() => {
-    if (image) {
-      const url = getImageUrl(image);
-      console.log(`🖼️ Testimonial avatar URL:`, url);
-      setSrc(url);
-      setError(false);
-    } else {
-      setSrc("");
-      setError(true);
-    }
-  }, [image]);
-
-  const handleError = () => {
-    console.log(`❌ Avatar failed to load for: ${name}`);
-    setError(true);
-    setSrc("");
-  };
-
-  // ✅ Jika error atau tidak ada gambar, tampilkan inisial
-  if (error || !src) {
+  if (!image) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-natarsal-gold text-white font-bold text-base">
         {name.charAt(0).toUpperCase()}
@@ -50,13 +25,22 @@ const TestimonialAvatar: React.FC<{ image?: string; name: string }> = ({
     );
   }
 
+  const src = getImageUrl(image);
+
   return (
     <img
       src={src}
       alt={name}
       className="w-full h-full object-cover"
       loading="lazy"
-      onError={handleError}
+      onError={(e) => {
+        const target = e.currentTarget;
+        target.style.display = "none";
+        const parent = target.parentElement;
+        if (parent) {
+          parent.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-natarsal-gold text-white font-bold text-base">${name.charAt(0).toUpperCase()}</div>`;
+        }
+      }}
     />
   );
 };
@@ -82,8 +66,6 @@ const Testimonials: React.FC = () => {
       setLoading(true);
       const response = await apiClient.getTestimonials();
 
-      console.log("📥 Testimonials response:", response);
-
       if (response.success && response.data && response.data.length > 0) {
         const mappedData: Testimonial[] = response.data.map((item: any) => ({
           id: item.id,
@@ -95,41 +77,34 @@ const Testimonials: React.FC = () => {
           order: item.order || 0,
         }));
 
-        console.log("✅ Testimonials loaded:", mappedData.length);
-        mappedData.forEach((t) => {
-          console.log(`📸 Testimonial ${t.id} - ${t.name}:`, t.image);
-        });
-
         setTestimonials(mappedData);
       } else {
-        console.log("ℹ️ No testimonials found");
         setTestimonials([]);
       }
     } catch (error) {
-      console.error("❌ Failed to fetch testimonials:", error);
+      console.error("Failed to fetch testimonials:", error);
       setTestimonials([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const shiftNext = () => {
+  const shiftNext = useCallback(() => {
     if (isTransitioning || testimonials.length === 0) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
     setTimeout(() => setIsTransitioning(false), 500);
-  };
+  }, [isTransitioning, testimonials.length]);
 
-  const shiftPrev = () => {
+  const shiftPrev = useCallback(() => {
     if (isTransitioning || testimonials.length === 0) return;
     setIsTransitioning(true);
     setCurrentIndex((prev) =>
       prev === 0 ? testimonials.length - 1 : prev - 1,
     );
     setTimeout(() => setIsTransitioning(false), 500);
-  };
+  }, [isTransitioning, testimonials.length]);
 
-  // Auto-slide setiap 5 detik
   useEffect(() => {
     if (testimonials.length === 0 || isDragging) return;
     if (autoPlayRef.current) clearInterval(autoPlayRef.current);
@@ -139,9 +114,8 @@ const Testimonials: React.FC = () => {
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [testimonials.length, currentIndex, isDragging]);
+  }, [testimonials.length, isDragging, shiftNext]);
 
-  // Drag handlers
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
@@ -173,13 +147,12 @@ const Testimonials: React.FC = () => {
     setCurrentX(0);
   };
 
-  // 3D Carousel
   const getVisibleIndices = () => {
     const total = testimonials.length;
     if (total === 0) return [];
     const indices: number[] = [];
     for (let diff = -3; diff <= 3; diff++) {
-      let index = (currentIndex + diff + total) % total;
+      const index = (currentIndex + diff + total) % total;
       indices.push(index);
     }
     return indices;
@@ -295,7 +268,6 @@ const Testimonials: React.FC = () => {
                   }`}
                   style={style}
                 >
-                  {/* Star Rating */}
                   <div className="flex gap-0.5 mb-2">
                     {[...Array(5)].map((_, i) => (
                       <FiStar
@@ -309,12 +281,10 @@ const Testimonials: React.FC = () => {
                     ))}
                   </div>
 
-                  {/* Content */}
                   <p className="text-natarsal-black/70 text-xs md:text-sm leading-relaxed italic line-clamp-3 mb-3">
                     "{testimonial.content}"
                   </p>
 
-                  {/* Author */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-natarsal-cream flex-shrink-0 border-2 border-natarsal-gold/20">
                       <TestimonialAvatar
@@ -336,7 +306,6 @@ const Testimonials: React.FC = () => {
             })}
           </div>
 
-          {/* Indicator */}
           <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 text-natarsal-black/20 text-xs flex items-center gap-2">
             <span className="flex items-center gap-1">
               <span className="w-4 h-0.5 bg-natarsal-black/20 rounded-full"></span>
@@ -345,7 +314,6 @@ const Testimonials: React.FC = () => {
           </div>
         </div>
 
-        {/* Counter */}
         <div className="text-center mt-4">
           <span className="text-xs text-natarsal-black/40">
             {currentIndex + 1} / {testimonials.length}

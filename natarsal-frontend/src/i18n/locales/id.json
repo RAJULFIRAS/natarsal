@@ -38,14 +38,16 @@
     "categories": {
       "all": "Semua",
       "appetizer": "Pembuka",
+      "beverage": "Minuman",
+      "dessert": "Penutup",
       "main": "Hidangan Utama",
-      "dessert": "Dessert",
-      "beverage": "Minuman"
+      "salad": "Salad",
+      "soup": "Sup"
     },
     "search": "Cari menu...",
     "noResults": "Tidak ada menu yang ditemukan",
     "recommended": "Rekomendasi",
-    "spicy": "Pedas",
+    "Spicy": "Pedas",
     "vegetarian": "Vegetarian",
     "viewAll": "Lihat Semua Menu",
     "price": "Harga"

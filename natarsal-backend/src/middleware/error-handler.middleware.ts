@@ -1,9 +1,4 @@
-// D:/natarsal/natarsal-backend/src/middleware/error-handler.middleware.ts
 import { Request, Response, NextFunction } from "express";
-
-// ============================================================
-// CUSTOM ERROR CLASSES
-// ============================================================
 
 export class AppError extends Error {
   public readonly statusCode: number;
@@ -59,24 +54,19 @@ export class ConflictError extends AppError {
   }
 }
 
-// ============================================================
-// GLOBAL ERROR HANDLER
-// ============================================================
-
 export const errorHandler = (
   err: Error,
   req: Request,
   res: Response,
   _next: NextFunction,
 ): void => {
-  console.error("❌ Error:", {
+  console.error("Error:", {
     message: err.message,
     stack: err.stack,
     path: req.path,
     method: req.method,
   });
 
-  // 1. Custom AppError
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       success: false,
@@ -90,7 +80,6 @@ export const errorHandler = (
     return;
   }
 
-  // 2. Unknown Error
   res.status(500).json({
     success: false,
     error: {

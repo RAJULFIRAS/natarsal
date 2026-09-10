@@ -5,11 +5,13 @@ import { prisma } from "../../src/config/database";
 
 describe("Reservation API Integration Tests", () => {
   const testReservation = {
-    name: "John Doe",
-    customerEmail: "john@example.com",
-    phone: "08123456789",
-    date: new Date(Date.now() + 86400000).toISOString(),
+    customerName: "Test User",
+    customerEmail: "test@example.com",
+    customerPhone: "08123456789",
+    date: "2026-09-11",
+    time: "19:00",
     guests: 4,
+    notes: "Test reservation",
   };
 
   afterAll(async () => {
@@ -27,15 +29,18 @@ describe("Reservation API Integration Tests", () => {
 
       expect(response.body).toHaveProperty("success", true);
       expect(response.body.data).toHaveProperty("reservationNumber");
-      expect(response.body.data).toHaveProperty("name", testReservation.name);
+      expect(response.body.data).toHaveProperty(
+        "customerName",
+        testReservation.customerName,
+      );
       expect(response.body.data).toHaveProperty("status", "PENDING");
     });
 
     it("should return 400 for invalid data", async () => {
       const invalidData = {
-        name: "",
+        customerName: "",
         customerEmail: "invalid",
-        phone: "",
+        customerPhone: "",
         date: "",
         guests: 0,
       };

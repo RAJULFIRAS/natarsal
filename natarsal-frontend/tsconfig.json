@@ -20,5 +20,5 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true
   },
-  "include": ["src"]
+  "include": ["src", "tests", "playwright.config.ts"]
 }

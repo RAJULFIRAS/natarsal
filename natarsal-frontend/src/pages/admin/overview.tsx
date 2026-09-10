@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/admin/overview.tsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -138,7 +137,6 @@ const AdminOverview: React.FC = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display text-2xl font-bold text-white/70">
@@ -154,7 +152,6 @@ const AdminOverview: React.FC = () => {
         </Link>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {statCards.map((card) => {
           const Icon = card.icon;
@@ -179,7 +176,6 @@ const AdminOverview: React.FC = () => {
         })}
       </div>
 
-      {/* Quick Actions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h3 className="font-display font-semibold text-natarsal-black mb-4">

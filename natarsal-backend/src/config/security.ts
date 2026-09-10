@@ -1,10 +1,7 @@
-// D:/natarsal/natarsal-backend/src/config/security.ts
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import { securityHeaders } from "../middleware/security-headers.middleware";
 
-// ✅ CORS dengan konfigurasi lengkap
 const corsOptions = {
   origin: [
     "http://localhost:3000",
@@ -50,10 +47,36 @@ const authLimiter = rateLimit({
   skipSuccessfulRequests: true,
 });
 
+const helmetConfig = helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'", "https:"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+    },
+  },
+  frameguard: {
+    action: "deny",
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+  referrerPolicy: {
+    policy: "strict-origin-when-cross-origin",
+  },
+});
+
 export default {
-  helmet: helmet(),
+  helmet: helmetConfig,
   cors: cors(corsOptions),
   rateLimiter,
   authLimiter,
-  securityHeaders,
 };

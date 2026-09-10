@@ -38,14 +38,16 @@
     "categories": {
       "all": "All",
       "appetizer": "Appetizer",
-      "main": "Main Course",
+      "beverage": "Beverage",
       "dessert": "Dessert",
-      "beverage": "Beverage"
+      "main": "Main Course",
+      "salad": "Salad",
+      "soup": "Soup"
     },
     "search": "Search menu...",
     "noResults": "No menu found",
     "recommended": "Recommended",
-    "spicy": "Spicy",
+    "Spicy": "Spicy",
     "vegetarian": "Vegetarian",
     "viewAll": "View All Menu",
     "price": "Price"

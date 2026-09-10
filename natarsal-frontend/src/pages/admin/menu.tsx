@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/pages/admin/menu.tsx
 import React, { useState, useEffect, useRef } from "react";
 import {
   FiPlus,
@@ -12,10 +11,7 @@ import {
 } from "react-icons/fi";
 import apiClient, { MenuItem as ApiMenuItem, Category } from "../../config/api";
 
-// ✅ Gunakan tipe dari api.ts, jangan definisikan ulang
 type MenuItem = ApiMenuItem;
-
-// ✅ Category sudah di-export dari api.ts
 
 const AdminMenu: React.FC = () => {
   const [menus, setMenus] = useState<MenuItem[]>([]);
@@ -27,12 +23,10 @@ const AdminMenu: React.FC = () => {
     "all",
   );
 
-  // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenu, setEditingMenu] = useState<MenuItem | null>(null);
   const [formLoading, setFormLoading] = useState(false);
 
-  // Form states
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -47,18 +41,15 @@ const AdminMenu: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // ✅ Helper untuk image URL
   const getImageUrl = (imagePath: string | null | undefined) => {
     if (!imagePath) return null;
 
-    // Jika sudah URL lengkap
     if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
       return imagePath;
     }
 
-    // Jika path dimulai dengan /uploads/
     if (imagePath.startsWith("/uploads/")) {
-      let baseUrl =
+      const baseUrl =
         import.meta.env.VITE_API_URL?.replace("/api", "") ||
         "http://localhost:3001";
       const normalizedBase = baseUrl.endsWith("/")
@@ -67,9 +58,8 @@ const AdminMenu: React.FC = () => {
       return `${normalizedBase}${imagePath}`;
     }
 
-    // Jika path dimulai dengan /
     if (imagePath.startsWith("/")) {
-      let baseUrl =
+      const baseUrl =
         import.meta.env.VITE_API_URL?.replace("/api", "") ||
         "http://localhost:3001";
       const normalizedBase = baseUrl.endsWith("/")
@@ -165,9 +155,6 @@ const AdminMenu: React.FC = () => {
     }
   };
 
-  // D:/natarsal/natarsal-frontend/src/pages/admin/menu.tsx
-  // ... di bagian handleSubmit ...
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormLoading(true);
@@ -177,7 +164,6 @@ const AdminMenu: React.FC = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      // ✅ Validasi sebelum submit
       if (!formData.name.trim()) {
         setError("Nama menu wajib diisi");
         setFormLoading(false);
@@ -196,7 +182,6 @@ const AdminMenu: React.FC = () => {
 
       const formDataToSend = new FormData();
 
-      // ✅ Append semua field dengan benar
       formDataToSend.append("name", formData.name.trim());
       formDataToSend.append("description", formData.description?.trim() || "");
       formDataToSend.append("price", String(parseFloat(formData.price)));
@@ -213,7 +198,6 @@ const AdminMenu: React.FC = () => {
         formDataToSend.append("image", imageFile);
       }
 
-      // ✅ Debug: Log form data
       console.log("Submitting menu:");
       for (const [key, value] of formDataToSend.entries()) {
         console.log(
@@ -236,7 +220,6 @@ const AdminMenu: React.FC = () => {
       if (response.success) {
         await fetchData();
         handleCloseModal();
-        // ✅ Reset form
         setFormData({
           name: "",
           description: "",
@@ -297,7 +280,6 @@ const AdminMenu: React.FC = () => {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-display text-2xl font-bold text-white/70">
@@ -325,7 +307,6 @@ const AdminMenu: React.FC = () => {
         </div>
       )}
 
-      {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
@@ -357,7 +338,6 @@ const AdminMenu: React.FC = () => {
         </div>
       </div>
 
-      {/* Menu Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMenus.length === 0 ? (
           <div className="col-span-full text-center py-12 text-natarsal-black/40">
@@ -446,7 +426,6 @@ const AdminMenu: React.FC = () => {
         )}
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6">
@@ -463,7 +442,6 @@ const AdminMenu: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name */}
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
                   Nama Menu *
@@ -479,7 +457,6 @@ const AdminMenu: React.FC = () => {
                 />
               </div>
 
-              {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
                   Deskripsi
@@ -494,7 +471,6 @@ const AdminMenu: React.FC = () => {
                 />
               </div>
 
-              {/* Price & Category */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
@@ -533,7 +509,6 @@ const AdminMenu: React.FC = () => {
                 </div>
               </div>
 
-              {/* Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-natarsal-black/70 mb-1">
                   Gambar
@@ -570,7 +545,6 @@ const AdminMenu: React.FC = () => {
                 </div>
               </div>
 
-              {/* Toggles */}
               <div className="grid grid-cols-2 gap-4">
                 <label className="flex items-center gap-2 text-sm text-natarsal-black/70">
                   <input
@@ -627,7 +601,6 @@ const AdminMenu: React.FC = () => {
                 </label>
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={formLoading}

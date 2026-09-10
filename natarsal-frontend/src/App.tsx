@@ -4,14 +4,12 @@ import { store } from "./store";
 import { ErrorBoundary } from "./components/ui/error-boundary";
 import ScrollToTop from "./components/ScrollToTop";
 
-// Public Pages
 import Home from "./pages/home";
 import MenuPage from "./pages/menupage";
 import AboutPage from "./pages/aboutpage";
 import ReservationPage from "./pages/reservationpage";
 import ContactPage from "./pages/contactpage";
 
-// Admin Pages
 import AdminLogin from "./pages/admin/login";
 import CheckStatus from "./pages/check-status";
 import AdminTestimonials from "./pages/admin/testimonials";
@@ -28,7 +26,6 @@ function App() {
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
-            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -36,7 +33,6 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/check-status" element={<CheckStatus />} />
 
-            {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route element={<ProtectedRoute requireAdmin={true} />}>
               <Route path="/admin" element={<AdminLayout />}>

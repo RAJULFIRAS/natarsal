@@ -1,14 +1,10 @@
-// D:/natarsal/natarsal-backend/src/controllers/exportController.ts
-import { Response } from "express"; // ✅ Hapus Request
+import { Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import ExcelJS from "exceljs";
 import { AuthRequest } from "../types";
 
 const prisma = new PrismaClient();
 
-// ============================================================
-// EXPORT RESERVATIONS TO EXCEL
-// ============================================================
 export const exportReservations = async (
   req: AuthRequest,
   res: Response,
@@ -16,7 +12,6 @@ export const exportReservations = async (
   try {
     const { from, to, status } = req.query;
 
-    // Build where clause
     const where: any = {};
     if (from) {
       where.date = { ...where.date, gte: new Date(from as string) };
@@ -35,14 +30,12 @@ export const exportReservations = async (
       orderBy: { date: "desc" },
     });
 
-    // Create Excel workbook
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "Natarsal";
     workbook.created = new Date();
 
     const worksheet = workbook.addWorksheet("Reservations");
 
-    // Columns
     worksheet.columns = [
       { header: "No", key: "no", width: 8 },
       { header: "Nomor Reservasi", key: "reservationNumber", width: 20 },
@@ -56,7 +49,6 @@ export const exportReservations = async (
       { header: "Dibuat", key: "createdAt", width: 25 },
     ];
 
-    // Style header
     worksheet.getRow(1).font = { bold: true };
     worksheet.getRow(1).fill = {
       type: "pattern",
@@ -65,7 +57,6 @@ export const exportReservations = async (
     };
     worksheet.getRow(1).font = { color: { argb: "FFFFFFFF" }, bold: true };
 
-    // Add data
     reservations.forEach((reservation, index) => {
       worksheet.addRow({
         no: index + 1,
@@ -88,7 +79,6 @@ export const exportReservations = async (
       });
     });
 
-    // Add summary row
     const summaryRow = worksheet.addRow({
       no: "",
       reservationNumber: "",
@@ -104,7 +94,6 @@ export const exportReservations = async (
     summaryRow.font = { bold: true };
     summaryRow.getCell(6).font = { bold: true };
 
-    // Set response
     const buffer = await workbook.xlsx.writeBuffer();
 
     res.setHeader(

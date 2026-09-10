@@ -1,4 +1,3 @@
-// natarsal-backend/src/config/swagger.ts
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
@@ -140,5 +139,5 @@ export const setupSwagger = (app: Express) => {
       },
     }),
   );
-  console.log("📚 Swagger docs available at /api-docs");
+  console.log("Swagger docs available at /api-docs");
 };

@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-backend/src/controllers/authController.ts
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -8,14 +7,10 @@ import { AuthRequest } from "../types";
 
 const prisma = new PrismaClient();
 
-// ============================================================
-// REGISTER
-// ============================================================
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password } = req.body;
 
-    // ✅ VALIDASI INPUT
     if (!name || !email || !password) {
       res.status(400).json({
         success: false,
@@ -66,15 +61,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// ============================================================
-// LOGIN - ✅ FIX: Pastikan email & password diambil dari body
-// ============================================================
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    // ✅ AMBIL DARI BODY
     const { email, password } = req.body;
 
-    // ✅ VALIDASI
     if (!email || !password) {
       res.status(400).json({
         success: false,
@@ -87,7 +77,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // ✅ FIND USER BY EMAIL
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
@@ -145,9 +134,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// ============================================================
-// REFRESH TOKEN
-// ============================================================
 export const refreshToken = async (
   req: Request,
   res: Response,
@@ -202,9 +188,6 @@ export const refreshToken = async (
   }
 };
 
-// ============================================================
-// GET CURRENT USER
-// ============================================================
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {

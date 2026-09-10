@@ -1,4 +1,3 @@
-// D:/natarsal/natarsal-frontend/src/components/sections/menupreview.tsx
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FiStar } from "react-icons/fi";
@@ -59,7 +58,6 @@ export default function MenuPreview() {
     return <div className="text-center py-8">No menu items available</div>;
   }
 
-  // ✅ Ambil 6 menu teratas untuk preview (atau semua)
   const displayMenus = menus.slice(0, 6);
 
   return (
@@ -79,7 +77,6 @@ export default function MenuPreview() {
           </p>
         </div>
 
-        {/* ✅ Grid 3 kolom - SAMA PERSIS dengan menupage.tsx */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayMenus.map((item) => {
             const imageUrl = getImageUrl(item.image);
@@ -105,7 +102,6 @@ export default function MenuPreview() {
                   onError={() => handleImageError(item.id)}
                 />
 
-                {/* ✅ Overlay teks saat hover - SAMA PERSIS */}
                 <div
                   className={`absolute inset-0 bg-black/50 transition-opacity duration-300 flex flex-col items-center justify-center p-4 text-center ${
                     isHovered ? "opacity-100" : "opacity-0"
@@ -122,7 +118,6 @@ export default function MenuPreview() {
                   </p>
                 </div>
 
-                {/* ✅ Tag Recommended - SAMA PERSIS */}
                 {item.isRecommended && (
                   <span className="absolute top-3 left-3 bg-natarsal-gold text-white text-xs font-medium px-2 py-1 rounded-sm flex items-center gap-1 z-10">
                     <FiStar className="fill-current text-[10px]" />
@@ -130,7 +125,6 @@ export default function MenuPreview() {
                   </span>
                 )}
 
-                {/* ✅ Tag Spicy & Vegetarian - SAMA PERSIS */}
                 <div className="absolute bottom-3 right-3 flex gap-1 z-10">
                   {item.isSpicy && (
                     <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">
@@ -148,7 +142,6 @@ export default function MenuPreview() {
           })}
         </div>
 
-        {/* ✅ Tombol Lihat Semua Menu - SAMA PERSIS */}
         <div className="text-center mt-12">
           <a
             href="/menu"

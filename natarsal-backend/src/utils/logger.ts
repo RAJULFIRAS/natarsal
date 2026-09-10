@@ -1,7 +1,7 @@
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 class Logger {
-  private level: LogLevel = (process.env.LOG_LEVEL as LogLevel) || 'info';
+  private level: LogLevel = (process.env.LOG_LEVEL as LogLevel) || "info";
   private levels: Record<LogLevel, number> = {
     debug: 0,
     info: 1,
@@ -23,26 +23,26 @@ class Logger {
   }
 
   debug(message: string, meta?: any): void {
-    if (this.shouldLog('debug')) {
-      console.debug(this.formatMessage('debug', message, meta));
+    if (this.shouldLog("debug")) {
+      console.debug(this.formatMessage("debug", message, meta));
     }
   }
 
   info(message: string, meta?: any): void {
-    if (this.shouldLog('info')) {
-      console.info(this.formatMessage('info', message, meta));
+    if (this.shouldLog("info")) {
+      console.info(this.formatMessage("info", message, meta));
     }
   }
 
   warn(message: string, meta?: any): void {
-    if (this.shouldLog('warn')) {
-      console.warn(this.formatMessage('warn', message, meta));
+    if (this.shouldLog("warn")) {
+      console.warn(this.formatMessage("warn", message, meta));
     }
   }
 
   error(message: string, meta?: any): void {
-    if (this.shouldLog('error')) {
-      console.error(this.formatMessage('error', message, meta));
+    if (this.shouldLog("error")) {
+      console.error(this.formatMessage("error", message, meta));
     }
   }
 }
