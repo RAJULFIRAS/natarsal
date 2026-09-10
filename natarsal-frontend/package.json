@@ -15,7 +15,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf dist playwright-report test-results coverage node_modules/.vite",
+    "clean:all": "rimraf node_modules dist playwright-report test-results coverage .vite"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.1",

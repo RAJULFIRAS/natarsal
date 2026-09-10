@@ -9,7 +9,6 @@ const ReservationCTA: React.FC = () => {
   return (
     <section className="relative section-padding overflow-hidden">
       <div className="absolute inset-0 bg-natarsal-gold">
-        <div className="absolute inset-0 bg-[url('/images/pattern.png')] opacity-10 bg-repeat" />
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-t from-black/20 to-transparent" />
       </div>
