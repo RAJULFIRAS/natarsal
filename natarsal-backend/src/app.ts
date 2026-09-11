@@ -11,6 +11,7 @@ import fs from "fs";
 import exportRoutes from "./routes/exportRoutes";
 import publicRoutes from "./routes/publicRoutes";
 import testimonialRoutes from "./routes/testimonialRoutes";
+import cors from "cors";
 
 const app = express();
 
@@ -43,6 +44,20 @@ app.use(
   }),
 );
 
+app.use(
+  cors({
+    origin: [
+      "https://natarsal.vercel.app",
+      "http://localhost:1000",
+      "http://localhost:3000",
+      "http://localhost:5173",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
 app.get("/debug/uploads", (_req, res) => {
   try {
     const files = fs.readdirSync(uploadsPath);
@@ -71,7 +86,14 @@ const healthHandler = (_req: express.Request, res: express.Response) => {
   });
 };
 
-app.get("/health", healthHandler);
+app.get("/health", (_req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+  });
+});
+
 app.get("/api/health", healthHandler);
 
 app.get("/ping", (_req, res) => {
