@@ -2,16 +2,42 @@ import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 
-const corsOptions = {
-  origin: [
+const parseCorsOrigins = (): string[] => {
+  const envOrigins = process.env.CORS_ORIGIN;
+
+  if (envOrigins) {
+    return envOrigins
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  return [
+    "http://localhost:1000",
     "http://localhost:3000",
     "http://localhost:5173",
-    "http://localhost:1000",
     "http://127.0.0.1:1000",
     "http://127.0.0.1:5173",
-    "https://natarsal.vercel.app",
-    "https://natarsal-backend.vercel.app",
-  ],
+  ];
+};
+
+const corsOrigins = parseCorsOrigins();
+
+console.log("CORS Origins configured:", corsOrigins);
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (corsOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"],
@@ -72,6 +98,8 @@ const helmetConfig = helmet({
   referrerPolicy: {
     policy: "strict-origin-when-cross-origin",
   },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
 });
 
 export default {

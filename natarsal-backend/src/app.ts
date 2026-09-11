@@ -11,7 +11,6 @@ import fs from "fs";
 import exportRoutes from "./routes/exportRoutes";
 import publicRoutes from "./routes/publicRoutes";
 import testimonialRoutes from "./routes/testimonialRoutes";
-import cors from "cors";
 
 const app = express();
 
@@ -44,34 +43,8 @@ app.use(
   }),
 );
 
-app.use(
-  cors({
-    origin: [
-      "https://natarsal.vercel.app",
-      "http://localhost:1000",
-      "http://localhost:3000",
-      "http://localhost:5173",
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
-
-app.get("/debug/uploads", (_req, res) => {
-  try {
-    const files = fs.readdirSync(uploadsPath);
-    res.json({
-      uploadsPath,
-      files,
-      count: files.length,
-    });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.json({ limit: "10mb" }));
 
 app.use("/api", securityConfig.rateLimiter);
 app.use("/api/auth/login", securityConfig.authLimiter);
@@ -100,21 +73,40 @@ app.get("/ping", (_req, res) => {
   res.send("pong");
 });
 
-app.use("/api/auth", express.json({ limit: "10mb" }), authRoutes);
-app.use(
-  "/api/reservations",
-  express.json({ limit: "10mb" }),
-  reservationRoutes,
-);
-app.use("/api/menu", express.json({ limit: "10mb" }), menuRoutes);
-app.use("/api/export", express.json({ limit: "10mb" }), exportRoutes);
-app.use("/api/public", express.json({ limit: "10mb" }), publicRoutes);
-app.use(
-  "/api/testimonials",
-  express.json({ limit: "10mb" }),
-  testimonialRoutes,
-);
+app.get("/debug/cors", (_req, res) => {
+  const envOrigins = process.env.CORS_ORIGIN;
+  res.json({
+    cors_origin_env: envOrigins,
+    cors_origin_parsed: envOrigins
+      ? envOrigins
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [],
+    node_env: process.env.NODE_ENV,
+    vercel_url: process.env.VERCEL_URL,
+  });
+});
 
+app.get("/debug/uploads", (_req, res) => {
+  try {
+    const files = fs.readdirSync(uploadsPath);
+    res.json({
+      uploadsPath,
+      files,
+      count: files.length,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.use("/api/auth", authRoutes);
+app.use("/api/reservations", reservationRoutes);
+app.use("/api/menu", menuRoutes);
+app.use("/api/export", exportRoutes);
+app.use("/api/public", publicRoutes);
+app.use("/api/testimonials", testimonialRoutes);
 app.use("/api/admin", adminMenuRoutes);
 
 app.use((req, res) => {
