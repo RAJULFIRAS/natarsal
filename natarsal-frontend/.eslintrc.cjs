@@ -13,8 +13,6 @@ module.exports = {
     "playwright-report",
     "test-results",
     "coverage",
-    "*.config.js",
-    "*.config.ts",
   ],
   parser: "@typescript-eslint/parser",
   plugins: ["react-refresh"],
