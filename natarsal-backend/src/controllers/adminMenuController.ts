@@ -116,7 +116,7 @@ export const createMenu = async (
         isRecommended: isRecommended === "true" || isRecommended === true,
         isSpicy: isSpicy === "true" || isSpicy === true,
         isVegetarian: isVegetarian === "true" || isVegetarian === true,
-        image: file ? `/uploads/${file.filename}` : null, // ✅ Tetap simpan relative path
+        image: file ? `/uploads/${file.filename}` : null,
       },
       include: {
         category: true,

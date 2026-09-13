@@ -9,7 +9,11 @@ import {
   FiLoader,
   FiSearch,
 } from "react-icons/fi";
-import apiClient, { MenuItem as ApiMenuItem, Category } from "../../config/api";
+import apiClient, {
+  MenuItem as ApiMenuItem,
+  Category,
+  getImageUrl,
+} from "../../config/api";
 
 type MenuItem = ApiMenuItem;
 
@@ -41,36 +45,6 @@ const AdminMenu: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const getImageUrl = (imagePath: string | null | undefined) => {
-    if (!imagePath) return null;
-
-    if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-      return imagePath;
-    }
-
-    if (imagePath.startsWith("/uploads/")) {
-      const baseUrl =
-        import.meta.env.VITE_API_URL?.replace("/api", "") ||
-        "http://localhost:3001";
-      const normalizedBase = baseUrl.endsWith("/")
-        ? baseUrl.slice(0, -1)
-        : baseUrl;
-      return `${normalizedBase}${imagePath}`;
-    }
-
-    if (imagePath.startsWith("/")) {
-      const baseUrl =
-        import.meta.env.VITE_API_URL?.replace("/api", "") ||
-        "http://localhost:3001";
-      const normalizedBase = baseUrl.endsWith("/")
-        ? baseUrl.slice(0, -1)
-        : baseUrl;
-      return `${normalizedBase}${imagePath}`;
-    }
-
-    return imagePath;
-  };
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -78,8 +52,7 @@ const AdminMenu: React.FC = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      setError(null);
 
       const [menusRes, categoriesRes] = await Promise.all([
         apiClient.getMenus(),
@@ -99,7 +72,27 @@ const AdminMenu: React.FC = () => {
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      price: "",
+      categoryId: "",
+      isAvailable: true,
+      isRecommended: false,
+      isSpicy: false,
+      isVegetarian: false,
+    });
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleOpenModal = (menu?: MenuItem) => {
+    setError(null);
+
     if (menu) {
       setEditingMenu(menu);
       setFormData({
@@ -112,23 +105,11 @@ const AdminMenu: React.FC = () => {
         isSpicy: menu.isSpicy || false,
         isVegetarian: menu.isVegetarian || false,
       });
-      if (menu.image) {
-        setImagePreview(menu.image);
-      }
+      setImagePreview(menu.image || null);
+      setImageFile(null);
     } else {
       setEditingMenu(null);
-      setFormData({
-        name: "",
-        description: "",
-        price: "",
-        categoryId: "",
-        isAvailable: true,
-        isRecommended: false,
-        isSpicy: false,
-        isVegetarian: false,
-      });
-      setImagePreview(null);
-      setImageFile(null);
+      resetForm();
     }
     setIsModalOpen(true);
   };
@@ -136,23 +117,40 @@ const AdminMenu: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingMenu(null);
-    setImageFile(null);
-    setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    resetForm();
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Ukuran file maksimal 5MB");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
     }
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Format file harus JPEG, PNG, WEBP, atau GIF");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    setError(null);
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -162,22 +160,16 @@ const AdminMenu: React.FC = () => {
 
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
+      if (!token) throw new Error("Sesi login berakhir. Silakan login ulang.");
 
       if (!formData.name.trim()) {
-        setError("Nama menu wajib diisi");
-        setFormLoading(false);
-        return;
+        throw new Error("Nama menu wajib diisi");
       }
       if (!formData.price || parseFloat(formData.price) <= 0) {
-        setError("Harga harus lebih dari 0");
-        setFormLoading(false);
-        return;
+        throw new Error("Harga harus lebih dari 0");
       }
       if (!formData.categoryId) {
-        setError("Kategori wajib dipilih");
-        setFormLoading(false);
-        return;
+        throw new Error("Kategori wajib dipilih");
       }
 
       const formDataToSend = new FormData();
@@ -187,7 +179,7 @@ const AdminMenu: React.FC = () => {
       formDataToSend.append("price", String(parseFloat(formData.price)));
       formDataToSend.append(
         "categoryId",
-        String(parseInt(formData.categoryId)),
+        String(parseInt(formData.categoryId, 10)),
       );
       formDataToSend.append("isAvailable", String(formData.isAvailable));
       formDataToSend.append("isRecommended", String(formData.isRecommended));
@@ -198,13 +190,12 @@ const AdminMenu: React.FC = () => {
         formDataToSend.append("image", imageFile);
       }
 
-      console.log("Submitting menu:");
-      for (const [key, value] of formDataToSend.entries()) {
-        console.log(
-          `  ${key}:`,
-          value instanceof File ? `File: ${value.name}` : value,
-        );
-      }
+      console.log("Submitting menu:", {
+        name: formData.name,
+        price: formData.price,
+        categoryId: formData.categoryId,
+        image: imageFile?.name || "(no image)",
+      });
 
       let response;
       if (editingMenu) {
@@ -220,24 +211,12 @@ const AdminMenu: React.FC = () => {
       if (response.success) {
         await fetchData();
         handleCloseModal();
-        setFormData({
-          name: "",
-          description: "",
-          price: "",
-          categoryId: "",
-          isAvailable: true,
-          isRecommended: false,
-          isSpicy: false,
-          isVegetarian: false,
-        });
-        setImageFile(null);
-        setImagePreview(null);
       } else {
-        setError(response.error?.message || "Failed to save menu");
+        throw new Error(response.error?.message || "Gagal menyimpan menu");
       }
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
-      console.error("Submit error:", err);
+      console.error("Submit menu error:", err);
+      setError(err.message || "Terjadi kesalahan saat menyimpan menu");
     } finally {
       setFormLoading(false);
     }
@@ -247,17 +226,18 @@ const AdminMenu: React.FC = () => {
     if (!confirm(`Yakin ingin menghapus menu "${name}"?`)) return;
 
     try {
+      setError(null);
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
+      if (!token) throw new Error("Sesi login berakhir. Silakan login ulang.");
 
       const response = await apiClient.deleteMenu(token, id);
       if (response.success) {
         await fetchData();
       } else {
-        setError(response.error?.message || "Failed to delete menu");
+        throw new Error(response.error?.message || "Gagal menghapus menu");
       }
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || "Terjadi kesalahan");
     }
   };
 
@@ -285,6 +265,9 @@ const AdminMenu: React.FC = () => {
           <h1 className="font-display text-2xl font-bold text-white/70">
             Kelola daftar menu restoran
           </h1>
+          <p className="text-sm text-white/40 mt-1">
+            Total {menus.length} menu
+          </p>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -296,13 +279,14 @@ const AdminMenu: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-white border border-red-500 rounded-lg p-4 mb-6 text-red-600">
-          {error}
+        <div className="bg-white border border-red-500 rounded-lg p-4 mb-6 text-red-600 flex items-start justify-between gap-3">
+          <span className="flex-1">{error}</span>
           <button
             onClick={() => setError(null)}
-            className="ml-2 text-red-400 hover:text-red-600"
+            className="text-red-400 hover:text-red-600 flex-shrink-0"
+            aria-label="Close error"
           >
-            <FiX className="inline" />
+            <FiX />
           </button>
         </div>
       )}
@@ -352,7 +336,7 @@ const AdminMenu: React.FC = () => {
               <div className="aspect-video bg-natarsal-cream relative">
                 {menu.image ? (
                   <img
-                    src={getImageUrl(menu.image) || "/images/placeholder.png"}
+                    src={getImageUrl(menu.image)}
                     alt={menu.name}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -365,7 +349,7 @@ const AdminMenu: React.FC = () => {
                     <FiImage size={48} />
                   </div>
                 )}
-                <div className="absolute top-2 right-2 flex gap-1">
+                <div className="absolute top-2 right-2 flex flex-wrap gap-1">
                   {menu.isRecommended && (
                     <span className="bg-natarsal-gold text-white text-xs px-2 py-0.5 rounded">
                       Recommendation
@@ -373,7 +357,7 @@ const AdminMenu: React.FC = () => {
                   )}
                   {menu.isSpicy && (
                     <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">
-                      spicy
+                      Spicy
                     </span>
                   )}
                   {menu.isVegetarian && (
@@ -383,15 +367,15 @@ const AdminMenu: React.FC = () => {
                   )}
                   {!menu.isAvailable && (
                     <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded">
-                      not available
+                      Not available
                     </span>
                   )}
                 </div>
               </div>
               <div className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold text-natarsal-black">
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-natarsal-black truncate">
                       {menu.name}
                     </h3>
                     <p className="text-sm text-natarsal-black/60 line-clamp-2">
@@ -401,14 +385,14 @@ const AdminMenu: React.FC = () => {
                       {menu.category?.name || "Tanpa Kategori"}
                     </p>
                   </div>
-                  <span className="font-bold text-natarsal-gold">
+                  <span className="font-bold text-natarsal-gold whitespace-nowrap">
                     Rp {menu.price.toLocaleString("id-ID")}
                   </span>
                 </div>
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => handleOpenModal(menu)}
-                    className="flex-1 px-3 py-1.5 bg-natarsal-gold text-natarsal-white rounded-lg hover:bg-natarsal-black hover:text-white transition-colors text-sm flex items-center justify-center gap-1"
+                    className="flex-1 px-3 py-1.5 bg-natarsal-gold text-white rounded-lg hover:bg-natarsal-black transition-colors text-sm flex items-center justify-center gap-1"
                   >
                     <FiEdit2 size={14} />
                     Edit
@@ -416,6 +400,7 @@ const AdminMenu: React.FC = () => {
                   <button
                     onClick={() => handleDelete(menu.id, menu.name)}
                     className="px-3 py-1.5 bg-white text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors text-sm"
+                    aria-label="Delete menu"
                   >
                     <FiTrash2 size={14} />
                   </button>
@@ -436,6 +421,7 @@ const AdminMenu: React.FC = () => {
               <button
                 onClick={handleCloseModal}
                 className="p-2 hover:bg-natarsal-cream rounded-lg transition-colors"
+                aria-label="Close modal"
               >
                 <FiX size={20} />
               </button>
@@ -518,9 +504,10 @@ const AdminMenu: React.FC = () => {
                     {imagePreview ? (
                       <img
                         src={
+                          imagePreview.startsWith("data:") ||
                           imagePreview.startsWith("http")
                             ? imagePreview
-                            : getImageUrl(imagePreview) || imagePreview
+                            : getImageUrl(imagePreview)
                         }
                         alt="Preview"
                         className="w-full h-full object-cover"
@@ -538,11 +525,14 @@ const AdminMenu: React.FC = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={handleImageChange}
                     className="flex-1 text-sm text-natarsal-black/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-natarsal-cream file:text-natarsal-black hover:file:bg-natarsal-gold hover:file:text-white transition-colors"
                   />
                 </div>
+                <p className="text-xs text-natarsal-black/40 mt-1">
+                  Maks 5MB. Format: JPEG, PNG, WEBP, GIF
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -558,7 +548,7 @@ const AdminMenu: React.FC = () => {
                     }
                     className="w-4 h-4 text-natarsal-gold focus:ring-natarsal-gold"
                   />
-                  available
+                  Available
                 </label>
                 <label className="flex items-center gap-2 text-sm text-natarsal-black/70">
                   <input
@@ -583,7 +573,7 @@ const AdminMenu: React.FC = () => {
                     }
                     className="w-4 h-4 text-natarsal-gold focus:ring-natarsal-gold"
                   />
-                  spicy
+                  Spicy
                 </label>
                 <label className="flex items-center gap-2 text-sm text-natarsal-black/70">
                   <input
@@ -609,7 +599,7 @@ const AdminMenu: React.FC = () => {
                 {formLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <FiLoader className="animate-spin" />
-                    Saving...
+                    Menyimpan...
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">

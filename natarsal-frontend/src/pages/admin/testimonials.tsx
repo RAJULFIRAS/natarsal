@@ -48,18 +48,36 @@ const Testimonials: React.FC = () => {
   const fetchTestimonials = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await apiClient.getTestimonials();
       if (response.success && response.data) {
         setTestimonials(response.data);
       }
     } catch (err: any) {
-      setError(err.message || "Failed to load testimonials");
+      setError(err.message || "Gagal memuat testimonial");
     } finally {
       setLoading(false);
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      role: "",
+      content: "",
+      rating: 5,
+      order: 0,
+    });
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   const handleOpenModal = (testimonial?: Testimonial) => {
+    setError(null);
+
     if (testimonial) {
       setEditing(testimonial);
       setFormData({
@@ -69,11 +87,7 @@ const Testimonials: React.FC = () => {
         rating: testimonial.rating,
         order: testimonial.order,
       });
-      if (testimonial.image) {
-        setImagePreview(testimonial.image);
-      } else {
-        setImagePreview(null);
-      }
+      setImagePreview(testimonial.image || null);
     } else {
       setEditing(null);
       setFormData({
@@ -92,42 +106,40 @@ const Testimonials: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditing(null);
-    setImageFile(null);
-    setImagePreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    resetForm();
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError("File terlalu besar. Maksimal 5MB.");
-        return;
-      }
+    if (!file) return;
 
-      const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "image/webp",
-        "image/gif",
-      ];
-      if (!allowedTypes.includes(file.type)) {
-        setError(
-          "Tipe file tidak diizinkan. Gunakan JPEG, PNG, WEBP, atau GIF.",
-        );
-        return;
-      }
-
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      setError(null);
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File terlalu besar. Maksimal 5MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
     }
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Tipe file tidak diizinkan. Gunakan JPEG, PNG, WEBP, atau GIF.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    setError(null);
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,9 +150,21 @@ const Testimonials: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("Not authenticated");
-        setFormLoading(false);
-        return;
+        throw new Error("Sesi login berakhir. Silakan login ulang.");
+      }
+
+      // Validasi
+      if (!formData.name.trim()) {
+        throw new Error("Nama wajib diisi");
+      }
+      if (!formData.role.trim()) {
+        throw new Error("Role / pekerjaan wajib diisi");
+      }
+      if (!formData.content.trim()) {
+        throw new Error("Isi testimonial wajib diisi");
+      }
+      if (formData.rating < 1 || formData.rating > 5) {
+        throw new Error("Rating harus antara 1 sampai 5");
       }
 
       const formDataToSend = new FormData();
@@ -154,13 +178,12 @@ const Testimonials: React.FC = () => {
         formDataToSend.append("image", imageFile);
       }
 
-      console.log("Submitting testimonial:");
-      for (const [key, value] of formDataToSend.entries()) {
-        console.log(
-          `  ${key}:`,
-          value instanceof File ? `File: ${value.name}` : value,
-        );
-      }
+      console.log("Submitting testimonial:", {
+        name: formData.name,
+        role: formData.role,
+        rating: formData.rating,
+        image: imageFile?.name || "(no image)",
+      });
 
       let response;
       if (editing) {
@@ -177,10 +200,13 @@ const Testimonials: React.FC = () => {
         await fetchTestimonials();
         handleCloseModal();
       } else {
-        setError(response.error?.message || "Failed to save");
+        throw new Error(
+          response.error?.message || "Gagal menyimpan testimonial",
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      console.error("Submit testimonial error:", err);
+      setError(err.message || "Terjadi kesalahan saat menyimpan testimonial");
     } finally {
       setFormLoading(false);
     }
@@ -190,20 +216,22 @@ const Testimonials: React.FC = () => {
     if (!confirm(`Yakin ingin menghapus testimonial dari "${name}"?`)) return;
 
     try {
+      setError(null);
       const token = localStorage.getItem("token");
       if (!token) {
-        setError("Not authenticated");
-        return;
+        throw new Error("Sesi login berakhir. Silakan login ulang.");
       }
 
       const response = await apiClient.deleteTestimonial(token, id);
       if (response.success) {
         await fetchTestimonials();
       } else {
-        setError(response.error?.message || "Failed to delete");
+        throw new Error(
+          response.error?.message || "Gagal menghapus testimonial",
+        );
       }
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      setError(err.message || "Terjadi kesalahan");
     }
   };
 
@@ -236,9 +264,13 @@ const Testimonials: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-white border border-red-600 rounded-lg p-4 mb-6 text-red-600 flex items-center justify-between">
-          <span>{error}</span>
-          <button onClick={() => setError(null)} className="hover:text-red-800">
+        <div className="bg-white border border-red-600 rounded-lg p-4 mb-6 text-red-600 flex items-center justify-between gap-3">
+          <span className="flex-1">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="hover:text-red-800 flex-shrink-0"
+            aria-label="Close error"
+          >
             <FiX size={18} />
           </button>
         </div>
@@ -314,27 +346,28 @@ const Testimonials: React.FC = () => {
                         {[...Array(5)].map((_, i) => (
                           <FiStar
                             key={i}
-                            className={`${
+                            className={
                               i < t.rating
                                 ? "text-natarsal-gold fill-natarsal-gold"
                                 : "text-gray-300"
-                            }`}
+                            }
                           />
                         ))}
                       </div>
                     </td>
-
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleOpenModal(t)}
-                          className="p-1.5 bg-natarsal-gold text-natarsal-white rounded-lg hover:bg-natarsal-black hover:text-white transition-colors"
+                          className="p-1.5 bg-natarsal-gold text-white rounded-lg hover:bg-natarsal-black transition-colors"
+                          aria-label="Edit testimonial"
                         >
                           <FiEdit2 size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(t.id, t.name)}
                           className="p-1.5 bg-white text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                          aria-label="Delete testimonial"
                         >
                           <FiTrash2 size={16} />
                         </button>
@@ -358,6 +391,7 @@ const Testimonials: React.FC = () => {
               <button
                 onClick={handleCloseModal}
                 className="p-2 hover:bg-natarsal-cream rounded-lg transition-colors"
+                aria-label="Close modal"
               >
                 <FiX size={20} />
               </button>
@@ -439,7 +473,7 @@ const Testimonials: React.FC = () => {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={handleImageChange}
                     className="flex-1 text-sm text-natarsal-black/60 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-natarsal-cream file:text-natarsal-black hover:file:bg-natarsal-gold hover:file:text-white transition-colors"
                   />
@@ -460,13 +494,14 @@ const Testimonials: React.FC = () => {
                       type="button"
                       onClick={() => setFormData({ ...formData, rating: star })}
                       className="text-2xl transition-colors"
+                      aria-label={`Rating ${star}`}
                     >
                       <FiStar
-                        className={`${
+                        className={
                           star <= formData.rating
                             ? "text-natarsal-gold fill-natarsal-gold"
                             : "text-gray-300"
-                        }`}
+                        }
                       />
                     </button>
                   ))}

@@ -1,27 +1,9 @@
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import { getCorsOrigins } from "./env";
 
-const parseCorsOrigins = (): string[] => {
-  const envOrigins = process.env.CORS_ORIGIN;
-
-  if (envOrigins) {
-    return envOrigins
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-
-  return [
-    "http://localhost:1000",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:1000",
-    "http://127.0.0.1:5173",
-  ];
-};
-
-const corsOrigins = parseCorsOrigins();
+const corsOrigins = getCorsOrigins();
 
 console.log("CORS Origins configured:", corsOrigins);
 
@@ -32,11 +14,16 @@ const corsOptions: cors.CorsOptions = {
     }
 
     if (corsOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
+      return callback(null, true);
     }
+
+    if (origin.endsWith(".vercel.app")) {
+      console.log(`CORS allowed Vercel preview origin: ${origin}`);
+      return callback(null, true);
+    }
+
+    console.warn(`CORS blocked origin: ${origin}`);
+    callback(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -79,8 +66,8 @@ const helmetConfig = helmet({
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      fontSrc: ["'self'", "data:"],
       connectSrc: ["'self'", "https:"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
