@@ -1,10 +1,41 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { AuthRequest } from "../types";
-import path from "path";
-import fs from "fs";
+import {
+  uploadToBlob,
+  deleteFromBlob,
+  isBlobConfigured,
+} from "../services/storage.service";
 
 const prisma = new PrismaClient();
+
+const processImageUpload = async (
+  file: Express.Multer.File | undefined,
+  existingImage: string | null = null,
+  isUpdate: boolean = false,
+): Promise<string | null> => {
+  if (!file) {
+    return isUpdate ? existingImage : null;
+  }
+
+  if (isUpdate && existingImage) {
+    await deleteFromBlob(existingImage);
+  }
+
+  if (!isBlobConfigured()) {
+    throw new Error(
+      "Fitur upload gambar belum tersedia. BLOB_READ_WRITE_TOKEN belum dikonfigurasi.",
+    );
+  }
+
+  const imageUrl = await uploadToBlob(
+    file.buffer,
+    file.originalname,
+    "testimonial",
+  );
+  console.log("Testimonial image uploaded:", imageUrl);
+  return imageUrl;
+};
 
 export const getTestimonials = async (
   _req: Request,
@@ -36,10 +67,10 @@ export const createTestimonial = async (
 ): Promise<void> => {
   try {
     const { name, role, content, rating, order } = req.body;
-    const file = (req as any).file;
+    const file = req.file;
 
     console.log("Create Testimonial - Body:", req.body);
-    console.log("Create Testimonial - File:", file?.filename || "No file");
+    console.log("Create Testimonial - File:", file?.originalname || "No file");
 
     if (!name || !role || !content) {
       res.status(400).json({
@@ -53,14 +84,30 @@ export const createTestimonial = async (
       return;
     }
 
+    let imageUrl: string | null = null;
+    try {
+      imageUrl = await processImageUpload(file, null, false);
+    } catch (uploadError: any) {
+      console.error("Upload image failed:", uploadError);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: "UPLOAD_ERROR",
+          message: uploadError.message || "Failed to upload image",
+        },
+        timestamp: new Date().toISOString(),
+      });
+      return;
+    }
+
     const testimonial = await prisma.testimonial.create({
       data: {
         name: name.trim(),
         role: role.trim(),
         content: content.trim(),
-        image: file ? `/uploads/${file.filename}` : null,
-        rating: rating ? parseInt(rating) : 5,
-        order: order ? parseInt(order) : 0,
+        image: imageUrl,
+        rating: rating ? parseInt(rating, 10) : 5,
+        order: order ? parseInt(order, 10) : 0,
         isActive: true,
       },
     });
@@ -87,13 +134,12 @@ export const updateTestimonial = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
     const { name, role, content, rating, order, isActive } = req.body;
-    const file = (req as any).file;
+    const file = req.file;
 
     console.log("Update Testimonial - ID:", id);
-    console.log("Update Testimonial - Body:", req.body);
-    console.log("Update Testimonial - File:", file?.filename || "No file");
+    console.log("Update Testimonial - File:", file?.originalname || "No file");
 
     if (isNaN(id)) {
       res.status(400).json({
@@ -114,24 +160,30 @@ export const updateTestimonial = async (
       return;
     }
 
-    let image = existing.image;
+    let imageUrl: string | null = existing.image;
     if (file) {
-      if (existing.image) {
-        const oldPath = path.join(__dirname, "../../", existing.image);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-          console.log("Old image deleted:", existing.image);
-        }
+      try {
+        imageUrl = await processImageUpload(file, existing.image, true);
+      } catch (uploadError: any) {
+        console.error("Upload image failed:", uploadError);
+        res.status(500).json({
+          success: false,
+          error: {
+            code: "UPLOAD_ERROR",
+            message: uploadError.message || "Failed to upload image",
+          },
+          timestamp: new Date().toISOString(),
+        });
+        return;
       }
-      image = `/uploads/${file.filename}`;
     }
 
-    const updateData: any = { image };
+    const updateData: any = { image: imageUrl };
     if (name) updateData.name = name.trim();
     if (role) updateData.role = role.trim();
     if (content) updateData.content = content.trim();
-    if (rating !== undefined) updateData.rating = parseInt(rating);
-    if (order !== undefined) updateData.order = parseInt(order);
+    if (rating !== undefined) updateData.rating = parseInt(rating, 10);
+    if (order !== undefined) updateData.order = parseInt(order, 10);
     if (isActive !== undefined) {
       updateData.isActive = isActive === "true" || isActive === true;
     }
@@ -163,7 +215,7 @@ export const deleteTestimonial = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
 
     if (isNaN(id)) {
       res.status(400).json({
@@ -185,11 +237,7 @@ export const deleteTestimonial = async (
     }
 
     if (existing.image) {
-      const filePath = path.join(__dirname, "../../", existing.image);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-        console.log("Image deleted:", existing.image);
-      }
+      await deleteFromBlob(existing.image);
     }
 
     await prisma.testimonial.delete({ where: { id } });
