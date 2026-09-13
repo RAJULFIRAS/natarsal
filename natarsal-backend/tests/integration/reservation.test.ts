@@ -8,7 +8,7 @@ describe("Reservation API Integration Tests", () => {
     customerName: "Test User",
     customerEmail: "test@example.com",
     customerPhone: "08123456789",
-    date: "2026-09-11",
+    date: "2026-12-1",
     time: "19:00",
     guests: 4,
     notes: "Test reservation",
