@@ -1,10 +1,37 @@
 import { Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { AuthRequest } from "../types";
-import path from "path";
-import fs from "fs";
+import {
+  uploadToBlob,
+  deleteFromBlob,
+  isBlobConfigured,
+} from "../services/storage.service";
 
 const prisma = new PrismaClient();
+
+const processImageUpload = async (
+  file: Express.Multer.File | undefined,
+  existingImage: string | null = null,
+  isUpdate: boolean = false,
+): Promise<string | null> => {
+  if (!file) {
+    return isUpdate ? existingImage : null;
+  }
+
+  if (isUpdate && existingImage) {
+    await deleteFromBlob(existingImage);
+  }
+
+  if (!isBlobConfigured()) {
+    throw new Error(
+      "Fitur upload gambar belum tersedia. BLOB_READ_WRITE_TOKEN belum dikonfigurasi.",
+    );
+  }
+
+  const imageUrl = await uploadToBlob(file.buffer, file.originalname, "menu");
+  console.log("Image uploaded to Blob:", imageUrl);
+  return imageUrl;
+};
 
 export const createMenu = async (
   req: AuthRequest,
@@ -22,19 +49,17 @@ export const createMenu = async (
       isVegetarian,
     } = req.body;
 
-    const file = (req as any).file;
+    const file = req.file;
 
     console.log("Create Menu - Body:", req.body);
-    console.log("Create Menu - File:", file?.filename || "No file");
+    console.log("Create Menu - File:", file?.originalname || "No file");
 
     if (!name || typeof name !== "string" || !name.trim()) {
-      console.log("Name is missing or invalid:", name);
       res.status(400).json({
         success: false,
         error: {
           code: "VALIDATION_ERROR",
           message: "Name is required",
-          details: { received: name },
         },
         timestamp: new Date().toISOString(),
       });
@@ -42,13 +67,11 @@ export const createMenu = async (
     }
 
     if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
-      console.log("Price is missing or invalid:", price);
       res.status(400).json({
         success: false,
         error: {
           code: "VALIDATION_ERROR",
           message: "Valid price is required",
-          details: { received: price },
         },
         timestamp: new Date().toISOString(),
       });
@@ -56,13 +79,11 @@ export const createMenu = async (
     }
 
     if (!categoryId || isNaN(parseInt(categoryId))) {
-      console.log("CategoryId is missing or invalid:", categoryId);
       res.status(400).json({
         success: false,
         error: {
           code: "VALIDATION_ERROR",
           message: "Valid category ID is required",
-          details: { received: categoryId },
         },
         timestamp: new Date().toISOString(),
       });
@@ -70,11 +91,10 @@ export const createMenu = async (
     }
 
     const category = await prisma.category.findUnique({
-      where: { id: parseInt(categoryId) },
+      where: { id: parseInt(categoryId, 10) },
     });
 
     if (!category) {
-      console.log("Category not found:", categoryId);
       res.status(404).json({
         success: false,
         error: {
@@ -89,12 +109,11 @@ export const createMenu = async (
     const existing = await prisma.menu.findFirst({
       where: {
         name: name.trim(),
-        categoryId: parseInt(categoryId),
+        categoryId: parseInt(categoryId, 10),
       },
     });
 
     if (existing) {
-      console.log("Duplicate menu:", name);
       res.status(409).json({
         success: false,
         error: {
@@ -106,17 +125,33 @@ export const createMenu = async (
       return;
     }
 
+    let imageUrl: string | null = null;
+    try {
+      imageUrl = await processImageUpload(file, null, false);
+    } catch (uploadError: any) {
+      console.error("Upload image failed:", uploadError);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: "UPLOAD_ERROR",
+          message: uploadError.message || "Failed to upload image",
+        },
+        timestamp: new Date().toISOString(),
+      });
+      return;
+    }
+
     const menu = await prisma.menu.create({
       data: {
         name: name.trim(),
         description: description?.trim() || "",
         price: parseFloat(price),
-        categoryId: parseInt(categoryId),
+        categoryId: parseInt(categoryId, 10),
         isAvailable: isAvailable === "true" || isAvailable === true,
         isRecommended: isRecommended === "true" || isRecommended === true,
         isSpicy: isSpicy === "true" || isSpicy === true,
         isVegetarian: isVegetarian === "true" || isVegetarian === true,
-        image: file ? `/uploads/${file.filename}` : null,
+        image: imageUrl,
       },
       include: {
         category: true,
@@ -147,7 +182,7 @@ export const updateMenu = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
     const {
       name,
       description,
@@ -158,26 +193,21 @@ export const updateMenu = async (
       isSpicy,
       isVegetarian,
     } = req.body;
-    const file = (req as any).file;
+    const file = req.file;
 
     console.log("Update Menu - ID:", id);
-    console.log("Update Menu - Body:", req.body);
+    console.log("Update Menu - File:", file?.originalname || "No file");
 
     if (isNaN(id)) {
       res.status(400).json({
         success: false,
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Invalid menu ID",
-        },
+        error: { code: "VALIDATION_ERROR", message: "Invalid menu ID" },
         timestamp: new Date().toISOString(),
       });
       return;
     }
 
-    const existing = await prisma.menu.findUnique({
-      where: { id },
-    });
+    const existing = await prisma.menu.findUnique({ where: { id } });
 
     if (!existing) {
       res.status(404).json({
@@ -191,15 +221,22 @@ export const updateMenu = async (
       return;
     }
 
-    let image = existing.image;
+    let imageUrl: string | null = existing.image;
     if (file) {
-      if (existing.image) {
-        const oldPath = path.join(__dirname, "../../", existing.image);
-        if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
-        }
+      try {
+        imageUrl = await processImageUpload(file, existing.image, true);
+      } catch (uploadError: any) {
+        console.error("Upload image failed:", uploadError);
+        res.status(500).json({
+          success: false,
+          error: {
+            code: "UPLOAD_ERROR",
+            message: uploadError.message || "Failed to upload image",
+          },
+          timestamp: new Date().toISOString(),
+        });
+        return;
       }
-      image = `/uploads/${file.filename}`;
     }
 
     const updateData: any = {};
@@ -208,9 +245,9 @@ export const updateMenu = async (
       updateData.description = description?.trim() || "";
     if (price && !isNaN(parseFloat(price)))
       updateData.price = parseFloat(price);
-    if (categoryId && !isNaN(parseInt(categoryId))) {
+    if (categoryId && !isNaN(parseInt(categoryId, 10))) {
       const category = await prisma.category.findUnique({
-        where: { id: parseInt(categoryId) },
+        where: { id: parseInt(categoryId, 10) },
       });
       if (!category) {
         res.status(404).json({
@@ -223,7 +260,7 @@ export const updateMenu = async (
         });
         return;
       }
-      updateData.categoryId = parseInt(categoryId);
+      updateData.categoryId = parseInt(categoryId, 10);
     }
     if (isAvailable !== undefined) {
       updateData.isAvailable = isAvailable === "true" || isAvailable === true;
@@ -239,14 +276,12 @@ export const updateMenu = async (
       updateData.isVegetarian =
         isVegetarian === "true" || isVegetarian === true;
     }
-    if (image) updateData.image = image;
+    updateData.image = imageUrl;
 
     const menu = await prisma.menu.update({
       where: { id },
       data: updateData,
-      include: {
-        category: true,
-      },
+      include: { category: true },
     });
 
     console.log("Menu updated:", menu.name);
@@ -273,23 +308,18 @@ export const deleteMenu = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id, 10);
 
     if (isNaN(id)) {
       res.status(400).json({
         success: false,
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Invalid menu ID",
-        },
+        error: { code: "VALIDATION_ERROR", message: "Invalid menu ID" },
         timestamp: new Date().toISOString(),
       });
       return;
     }
 
-    const existing = await prisma.menu.findUnique({
-      where: { id },
-    });
+    const existing = await prisma.menu.findUnique({ where: { id } });
 
     if (!existing) {
       res.status(404).json({
@@ -304,15 +334,10 @@ export const deleteMenu = async (
     }
 
     if (existing.image) {
-      const filePath = path.join(__dirname, "../../", existing.image);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      await deleteFromBlob(existing.image);
     }
 
-    await prisma.menu.delete({
-      where: { id },
-    });
+    await prisma.menu.delete({ where: { id } });
 
     res.json({
       success: true,
