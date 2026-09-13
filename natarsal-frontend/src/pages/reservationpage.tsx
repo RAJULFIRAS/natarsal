@@ -114,7 +114,7 @@ const ReservationPage: React.FC = () => {
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
                 <Link to="/check-status" className="btn-primary">
-                  {t("reservation.checkStatus")}
+                  {t("reservation.checkStatus.title")}
                 </Link>
                 <Link to="/" className="btn-outline">
                   {t("reservation.backHome")}

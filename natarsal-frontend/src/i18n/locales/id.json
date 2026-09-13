@@ -82,6 +82,8 @@
     "backHome": "Kembali ke Beranda",
     "comingSoon": "Fitur reservasi akan segera hadir. Silakan hubungi kami langsung untuk pemesanan.",
     "whatsapp": "Hubungi via WhatsApp",
+    "reservationNumber": "Nomor Reservasi Anda",
+    "reservationNumberNote": "Simpan nomor ini untuk cek status reservasi",
     "checkStatus": {
       "title": "Cek Status Reservasi",
       "description": "Masukkan nomor reservasi dan email Anda untuk melihat status reservasi",

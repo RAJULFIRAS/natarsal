@@ -59,8 +59,8 @@
   },
   "reservation": {
     "title": "Reservation",
-    "subtitle": "Book a Table Now",
-    "description": "Enjoy an unforgettable culinary experience at Natarsal. Fill out the form below to book a table.",
+    "subtitle": "Book Your Table Now",
+    "description": "Enjoy an unforgettable dining experience at Natarsal. Fill in the form below to book your table.",
     "name": "Full Name",
     "email": "Email",
     "phone": "Phone Number",
@@ -74,17 +74,19 @@
     "business": "Business Dinner",
     "other": "Other",
     "notes": "Notes",
-    "notesPlaceholder": "Additional notes (special diet, special requests, etc.)",
+    "notesPlaceholder": "Additional notes (dietary restrictions, special requests, etc.)",
     "submit": "Book Now",
     "processing": "Processing...",
     "success": "Reservation Successful!",
     "successMessage": "We will send confirmation to your email. Thank you for choosing Natarsal.",
     "backHome": "Back to Home",
-    "comingSoon": "Reservation feature coming soon. Please contact us directly for booking.",
+    "comingSoon": "Reservation feature is coming soon. Please contact us directly for booking.",
     "whatsapp": "Contact via WhatsApp",
+    "reservationNumber": "Your Reservation Number",
+    "reservationNumberNote": "Save this number to check your reservation status",
     "checkStatus": {
       "title": "Check Reservation Status",
-      "description": "Enter your reservation number and email to check your reservation status",
+      "description": "Enter your reservation number and email to view your reservation status",
       "reservationNumber": "Reservation Number",
       "reservationNumberPlaceholder": "Example: RSV-1234567890-ABC12",
       "email": "Email",
@@ -92,7 +94,7 @@
       "submit": "Check Status",
       "submitting": "Checking...",
       "notFound": "Reservation not found",
-      "error": "Something went wrong",
+      "error": "An error occurred",
       "required": "Reservation number and email are required",
       "status": {
         "pending": "Pending Confirmation",
@@ -109,7 +111,7 @@
         "status": "Status",
         "person": "Person"
       },
-      "hint": "* If you forgot your reservation number, please check your confirmation email",
+      "hint": "* If you forgot your reservation number, please check the confirmation email sent to you",
       "saveNumber": "Save this number to check your reservation status",
       "backHome": "Back to Home"
     }
