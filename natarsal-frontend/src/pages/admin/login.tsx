@@ -87,7 +87,7 @@ const AdminLogin: React.FC = () => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="admin@natarsal.com"
+                    placeholder="role@example.com"
                     className="w-full pl-10 pr-4 py-3 rounded-lg border border-natarsal-black/10 focus:border-natarsal-gold focus:ring-2 focus:ring-natarsal-gold/20 outline-none transition-all"
                     required
                   />

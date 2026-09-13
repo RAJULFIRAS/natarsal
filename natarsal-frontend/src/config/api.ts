@@ -1,6 +1,11 @@
+const PRODUCTION_API_URL = "https://natarsal-backend.vercel.app/api";
+const DEVELOPMENT_API_URL = "http://localhost:3001/api";
+
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-const DEFAULT_TIMEOUT = import.meta.env.PROD ? 10000 : 30000;
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? PRODUCTION_API_URL : DEVELOPMENT_API_URL);
+
+const DEFAULT_TIMEOUT = import.meta.env.PROD ? 15000 : 30000;
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -41,15 +46,6 @@ export interface Category {
   slug: string;
 }
 
-/**
- * Payload untuk create reservation.
- *
- * date dan time dikirim TERPISAH sesuai format HTML5 input:
- * - date: YYYY-MM-DD (dari <input type="date">)
- * - time: HH:MM (dari <input type="time">)
- *
- * Backend akan menggabungkan keduanya dengan timezone yang tepat.
- */
 export interface ReservationData {
   customerName: string;
   customerEmail: string;
@@ -67,8 +63,7 @@ export interface AuthData {
 }
 
 export const getBaseUrl = (): string => {
-  const base = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-  return base.replace(/\/api$/, "");
+  return API_BASE_URL.replace(/\/api\/?$/, "");
 };
 
 export const getImageUrl = (imagePath: string | null | undefined): string => {
@@ -78,19 +73,13 @@ export const getImageUrl = (imagePath: string | null | undefined): string => {
     return imagePath;
   }
 
-  const baseUrl =
-    import.meta.env.VITE_API_URL?.replace("/api", "") ||
-    "http://localhost:3001";
-
-  if (imagePath.startsWith("/uploads/")) {
-    return `${baseUrl}${imagePath}`;
-  }
+  const baseUrl = getBaseUrl();
 
   if (imagePath.startsWith("/")) {
     return `${baseUrl}${imagePath}`;
   }
 
-  return imagePath;
+  return `${baseUrl}/uploads/${imagePath}`;
 };
 
 export const fetchImageWithCors = async (url: string): Promise<Blob> => {
@@ -182,6 +171,12 @@ class ApiClient {
 
         if (response.success && response.data?.token) {
           localStorage.setItem("token", response.data.token);
+          if ((response.data as any).refreshToken) {
+            localStorage.setItem(
+              "refreshToken",
+              (response.data as any).refreshToken,
+            );
+          }
           console.log("Token auto-refreshed successfully");
           return true;
         }
@@ -235,7 +230,8 @@ class ApiClient {
       const isAuthError =
         error.message?.includes("Token expired") ||
         error.message?.includes("Unauthorized") ||
-        error.message?.includes("Invalid token");
+        error.message?.includes("Invalid token") ||
+        error.message?.includes("HTTP 401");
 
       if (
         isAuthError &&
@@ -253,7 +249,7 @@ class ApiClient {
             const newOptions = {
               ...options,
               headers: {
-                ...options.headers,
+                ...(options.headers as Record<string, string>),
                 Authorization: `Bearer ${newToken}`,
               },
             };
@@ -326,7 +322,7 @@ class ApiClient {
 
   async refreshToken(
     refreshToken: string,
-  ): Promise<ApiResponse<{ token: string }>> {
+  ): Promise<ApiResponse<{ token: string; refreshToken?: string }>> {
     return this.request("/auth/refresh", {
       method: "POST",
       body: JSON.stringify({ refreshToken }),
