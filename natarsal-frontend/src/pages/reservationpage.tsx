@@ -101,20 +101,20 @@ const ReservationPage: React.FC = () => {
               {reservationNumber && (
                 <div className="mt-6 p-4 bg-natarsal-cream rounded-xl border border-natarsal-gold/20">
                   <p className="text-sm text-natarsal-black/60">
-                    Nomor Reservasi
+                    {t("reservation.reservationNumber")}
                   </p>
                   <p className="font-mono font-bold text-natarsal-gold text-xl tracking-wider">
                     {reservationNumber}
                   </p>
                   <p className="text-xs text-natarsal-black/40 mt-1">
-                    Simpan nomor ini untuk cek status reservasi
+                    {t("reservation.reservationNumberNote")}
                   </p>
                 </div>
               )}
 
               <div className="flex flex-col sm:flex-row gap-3 mt-6 justify-center">
                 <Link to="/check-status" className="btn-primary">
-                  Cek Status Reservasi
+                  {t("reservation.checkStatus")}
                 </Link>
                 <Link to="/" className="btn-outline">
                   {t("reservation.backHome")}
