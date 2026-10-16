@@ -62,10 +62,9 @@ const AdminLogin: React.FC = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="font-display text-2xl font-bold text-natarsal-black mb-2">
+          <h2 className="font-display text-2xl font-bold text-natarsal-black mb-6">
             WELCOME BACK
           </h2>
-          <br />
 
           {error && (
             <div className="bg-white border border-red-500 rounded-lg p-4 mb-6 flex items-start gap-3">
@@ -99,20 +98,26 @@ const AdminLogin: React.FC = () => {
                   Password
                 </label>
                 <div className="relative">
-                  <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-natarsal-black/40" />
+                  <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-natarsal-black/40 pointer-events-none" />
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="w-full pl-10 pr-12 py-3 rounded-lg border border-natarsal-black/10 focus:border-natarsal-gold focus:ring-2 focus:ring-natarsal-gold/20 outline-none transition-all"
+                    className="w-full pl-10 pr-16 py-3 rounded-lg border border-natarsal-black/10 focus:border-natarsal-gold focus:ring-2 focus:ring-natarsal-gold/20 outline-none transition-all"
+                    style={{ WebkitAppearance: "none" }}
                     required
+                    autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-natarsal-black/40 hover:text-natarsal-black/60"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs font-medium text-natarsal-black/50 hover:text-natarsal-gold transition-colors focus:outline-none z-10 bg-white px-1"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    tabIndex={-1}
                   >
                     {showPassword ? "Hide" : "Show"}
                   </button>

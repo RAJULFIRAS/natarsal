@@ -734,7 +734,7 @@ Distributed under the **MIT License**. See [![License](https://img.shields.io/ba
 
 **Rajul Firas**
 
-_Software Engineer | AI-Native Product Builder_
+_Software Engineer | System Designer_
 
 I use AI for implementation speed, but I verify every output against my own engineering standards — architecture, security, cost, performance, testing, production readiness, and monitoring. AI accelerates the typing; I own the decisions.
 
