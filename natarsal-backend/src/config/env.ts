@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const PRODUCTION_BACKEND_URL = "https://natarsal-backend.vercel.app";
-const PRODUCTION_FRONTEND_URL = "https://natarsal-frontend.vercel.app";
+const PRODUCTION_FRONTEND_URL = "https://natarsal.vercel.app";
 
 const envSchema = z.object({
   NODE_ENV: z

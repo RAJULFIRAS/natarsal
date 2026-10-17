@@ -4,14 +4,14 @@
 
 **A production-oriented fullstack reservation system built with a free-tier-first architecture**
 
-[![Live Demo](https://img.shields.io/badge/demo-live-success?style=for-the-badge&logo=vercel)](https://natarsal-frontend.vercel.app)
+[![Live Demo](https://img.shields.io/badge/demo-live-success?style=for-the-badge&logo=vercel)](https://natarsal.vercel.app)
 [![API Status](https://img.shields.io/badge/API-healthy-brightgreen?style=for-the-badge)](https://natarsal-backend.vercel.app/api/health)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](./LICENSE)
 
 _Self-initiated concept project — not affiliated with any real restaurant_
 
-[Live Demo](https://natarsal-frontend.vercel.app) · [Report Bug](https://github.com/RAJULFIRAS/natarsal/issues)
+[Live Demo](https://natarsal.vercel.app) · [Report Bug](https://github.com/RAJULFIRAS/natarsal/issues)
 
 </div>
 
@@ -265,7 +265,7 @@ graph TB
     end
 
     subgraph Vercel["☁️ Vercel Edge Network"]
-        FE[Frontend<br/>natarsal-frontend.vercel.app]
+        FE[Frontend<br/>natarsal.vercel.app]
         BE[Backend API<br/>Serverless Functions]
         BLOB[(Vercel Blob<br/>Image Storage)]
     end
